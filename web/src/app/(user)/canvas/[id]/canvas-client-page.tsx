@@ -18,7 +18,7 @@ import { nanoid } from "nanoid";
 import { getDataUrlByteSize, readImageMeta } from "@/lib/image-utils";
 import { canvasThemes, type CanvasBackgroundMode } from "@/lib/canvas-theme";
 import { UserStatusActions } from "@/components/layout/user-status-actions";
-import { isKIEKlingV3Config } from "@/components/video-settings-panel";
+import { isKIEKlingV3Config, kieKlingOmniVariant } from "@/components/video-settings-panel";
 import { useAssetStore } from "@/stores/use-asset-store";
 import { useThemeStore } from "@/stores/use-theme-store";
 import { cropDataUrl, splitDataUrl, upscaleDataUrl } from "../utils/canvas-image-data";
@@ -4328,10 +4328,10 @@ function CanvasTopBar({
             </div>
             <Modal title="快捷键" open={shortcutsOpen} onCancel={() => setShortcutsOpen(false)} footer={null} centered>
                 <div className="space-y-2 border-t pt-4 text-sm" style={{ borderColor: theme.node.stroke }}>
-                    <Shortcut keys={["Ctrl / Space", "拖动"]} value="临时反转选择/移动工具" />
+                    <Shortcut keys={["Space", "拖动"]} value="临时反转选择/移动工具" />
                     <Shortcut keys={["滚轮"]} value="缩放画布" />
                     <Shortcut keys={["拖动"]} value="使用当前工具操作画布" />
-                    <Shortcut keys={["Shift / Cmd", "点击"]} value="追加选择节点" />
+                    <Shortcut keys={["Shift / Ctrl / Cmd", "点击"]} value="追加选择节点" />
                     <Shortcut keys={["Ctrl / Cmd", "G"]} value="创建组" />
                     <Shortcut keys={["Ctrl / Cmd", "C / V"]} value="复制 / 粘贴节点，或粘贴剪切板文本/图片" />
                     <Shortcut keys={["Ctrl / Cmd", "Z"]} value="撤销" />
@@ -4472,10 +4472,12 @@ function referenceUrl(image: ReferenceImage) {
 
 function withCanvasVideoAdvancedConfig(config: AiConfig, context: Pick<NodeGenerationContext, "videoMultiPrompt" | "videoElementList">): AiConfig {
     const kieKlingV3 = isKIEKlingV3Config(config, config.model || config.videoModel);
+    const kieKlingOmni = kieKlingOmniVariant(config, config.model || config.videoModel);
     return {
         ...config,
         videoNegativePrompt: kieKlingV3 ? "" : config.videoNegativePrompt,
-        videoShotType: kieKlingV3 ? "intelligence" : config.videoShotType,
+        videoMultiShot: kieKlingOmni === "transformation" ? "false" : config.videoMultiShot,
+        videoShotType: kieKlingV3 && !kieKlingOmni ? "intelligence" : config.videoShotType,
         videoMultiPrompt: context.videoMultiPrompt.length ? context.videoMultiPrompt : config.videoMultiPrompt,
         videoElementList: context.videoElementList.length ? context.videoElementList : config.videoElementList,
     };

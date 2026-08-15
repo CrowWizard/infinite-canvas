@@ -482,7 +482,14 @@ export function isAPIMartKlingMotionControlConfig(config: AiConfig, modelName: s
 }
 
 export function isKIEKlingV3Config(config: AiConfig, modelName: string) {
-    return isProviderKlingConfig(config, modelName, "kling-3-0-video", "kie");
+    return isProviderKlingConfig(config, modelName, "kling-3-0-video", "kie") || Boolean(kieKlingOmniVariant(config, modelName));
+}
+
+export function kieKlingOmniVariant(config: AiConfig, modelName: string) {
+    const key = modelKey(modelName || config.model || config.videoModel);
+    const variant = key.startsWith("kling-3-0-omni-") ? key.slice("kling-3-0-omni-".length) : "";
+    if (!["text-to-video", "image-to-video", "reference-to-video", "transformation"].includes(variant)) return "";
+    return isProviderKlingConfig(config, modelName, key, "kie") ? variant : "";
 }
 
 export function isKIEKlingMotionControlConfig(config: AiConfig, modelName: string) {

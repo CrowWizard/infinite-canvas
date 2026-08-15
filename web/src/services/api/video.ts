@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { dataUrlToFile } from "@/lib/image-utils";
 import { boolConfig, isSeedanceVideoConfig, normalizeSeedanceRatio } from "@/lib/seedance-video";
-import { isKIEGrokVideoModel } from "@/components/video-settings-panel";
+import { isKIEGrokVideoModel, isKIEKlingV3Config, kieKlingOmniVariant } from "@/components/video-settings-panel";
 import { modelKey, supportsVideoAudioGeneration } from "@/lib/video-model-capabilities";
 import { resolveMediaUrl, uploadMediaFile } from "@/services/file-storage";
 import { imageToDataUrl, resolveImageUrl } from "@/services/image-storage";
@@ -235,7 +235,8 @@ async function createVideoRequestBody(config: AiConfig, model: string, prompt: s
     const klingV26 = isAPIMartKlingV26VideoConfig(config, model);
     const apimartKlingV3 = isAPIMartKlingV3VideoConfig(config, model);
     const apimartMotionControl = isAPIMartKlingMotionControlVideoConfig(config, model);
-    const kieKlingV3 = isKIEKlingV3VideoConfig(config, model);
+    const kieKlingV3 = isKIEKlingV3Config(config, model);
+    const kieKlingOmni = kieKlingOmniVariant(config, model);
     const kieMotionControl = isKIEKlingMotionControlVideoConfig(config, model);
     const motionControl = apimartMotionControl || kieMotionControl;
     const klingV3 = apimartKlingV3 || kieKlingV3;
@@ -248,17 +249,18 @@ async function createVideoRequestBody(config: AiConfig, model: string, prompt: s
         body.append("duration", klingV3 ? normalizeKlingV3Duration(config.videoSeconds) : normalizeKlingV26Duration(config.videoSeconds));
         body.append("aspect_ratio", normalizeKlingV26AspectRatio(config.size));
         if (!kieKlingV3 && config.videoNegativePrompt?.trim()) body.append("negative_prompt", config.videoNegativePrompt.trim());
-        if (klingV3 && boolConfig(config.videoMultiShot, false)) {
+        if (klingV3 && kieKlingOmni !== "transformation" && boolConfig(config.videoMultiShot, false)) {
             body.append("multi_shot", "true");
-            if (kieKlingV3) {
+            const supportsSmartShots = !kieKlingV3 || kieKlingOmni === "text-to-video" || kieKlingOmni === "image-to-video";
+            if (!supportsSmartShots) {
                 body.append("multi_prompt", JSON.stringify(normalizeKIEKlingMultiPrompt(config.videoMultiPrompt)));
             } else {
                 const shotType = normalizeKlingShotType(config.videoShotType);
                 body.append("shot_type", shotType);
-                if (shotType === "customize") body.append("multi_prompt", JSON.stringify(normalizeKlingMultiPrompt(config.videoMultiPrompt)));
+                if (shotType === "customize") body.append("multi_prompt", JSON.stringify(kieKlingV3 ? normalizeKIEKlingMultiPrompt(config.videoMultiPrompt) : normalizeKlingMultiPrompt(config.videoMultiPrompt)));
             }
         }
-        if (klingV3) {
+        if (klingV3 && kieKlingOmni !== "transformation") {
             const elementList = await (kieKlingV3 ? normalizeKIEKlingElementList(config.videoElementList) : normalizeKlingElementList(config.videoElementList));
             if (elementList.length) body.append("element_list", JSON.stringify(elementList));
         }
@@ -274,11 +276,12 @@ async function createVideoRequestBody(config: AiConfig, model: string, prompt: s
     }
     if (motionControl) body.append("character_orientation", normalizeCharacterOrientation(config.videoCharacterOrientation));
     if (supportsVideoAudioGeneration(model)) body.append("video_generate_audio", String(boolConfig(config.videoGenerateAudio, false)));
-    const files = await Promise.all(input.references.slice(0, kling ? 2 : 9).map(imageReferenceToFormValue));
+    const imageReferenceLimit = kieKlingOmni === "text-to-video" ? 0 : kieKlingOmni === "reference-to-video" ? input.references.length : kieKlingOmni === "transformation" ? 4 : kling ? 2 : 9;
+    const files = await Promise.all(input.references.slice(0, imageReferenceLimit).map(imageReferenceToFormValue));
     files.forEach((file) => body.append("input_reference[]", file));
     if (!kling && input.firstFrame) body.append("first_frame_url", await imageReferenceToFormValue(input.firstFrame));
     if (!kling && input.lastFrame) body.append("last_frame_url", await imageReferenceToFormValue(input.lastFrame));
-    const videoFiles = kling ? [] : await Promise.all(input.videoReferences.map(mediaReferenceToFormValue));
+    const videoFiles = kling && kieKlingOmni !== "reference-to-video" && kieKlingOmni !== "transformation" ? [] : await Promise.all(input.videoReferences.slice(0, kieKlingOmni ? 1 : input.videoReferences.length).map(mediaReferenceToFormValue));
     videoFiles.forEach((file) => body.append("video_reference[]", file));
     const audioFiles = kling ? [] : await Promise.all(input.audioReferences.map(mediaReferenceToFormValue));
     audioFiles.forEach((file) => body.append("audio_reference[]", file));
@@ -295,10 +298,6 @@ function isAPIMartKlingV3VideoConfig(config: AiConfig, model: string) {
 
 function isAPIMartKlingMotionControlVideoConfig(config: AiConfig, model: string) {
     return isAPIMartKlingVideoConfig(config, model, "kling-v2-6-motion-control") || isAPIMartKlingVideoConfig(config, model, "kling-v3-motion-control");
-}
-
-function isKIEKlingV3VideoConfig(config: AiConfig, model: string) {
-    return isKIEKlingVideoConfig(config, model, "kling-3-0-video");
 }
 
 function isKIEKlingMotionControlVideoConfig(config: AiConfig, model: string) {

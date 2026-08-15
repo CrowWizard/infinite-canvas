@@ -145,7 +145,7 @@ func proxyAIRequest(w http.ResponseWriter, r *http.Request, path string) {
 			Fail(w, err.Error())
 			return
 		}
-	} else if isKIEChannel(channel, modelName) && upstreamPath == "/jobs/createTask" {
+	} else if isKIEChannel(channel, modelName) && isKIECreateTaskPath(upstreamPath) {
 		body, contentType, err = normalizeKIEVideoBody(body, contentType, modelName, channel)
 		if err != nil {
 			log.Printf("AI proxy normalize KIE request failed: model=%s err=%v", modelName, err)
@@ -513,6 +513,9 @@ func resolveAIProxyPath(channel model.ModelChannel, modelName string, path strin
 		return "/chat/completions"
 	}
 	if isKIEChannel(channel, modelName) {
+		if path == "/images/generations" && strings.EqualFold(strings.TrimSpace(modelName), "grok-imagine-image-2-0/text-to-image") {
+			return "/client/tasks"
+		}
 		if path == "/videos" || path == "/images/generations" || path == "/images/edits" {
 			return "/jobs/createTask"
 		}
