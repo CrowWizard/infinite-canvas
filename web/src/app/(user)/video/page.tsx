@@ -16,7 +16,7 @@ import { VideoSettingsPanel, isKIEKlingV3Config, kieKlingOmniVariant, normalizeV
 import { canvasThemes } from "@/lib/canvas-theme";
 import { formatBytes, formatDuration } from "@/lib/image-utils";
 import { boolConfig, isSeedanceVideoConfig, normalizeSeedanceRatio, seedanceReferenceLabel, seedanceVideoReferenceError, seedanceVideoReferenceHint, SEEDANCE_REFERENCE_LIMITS } from "@/lib/seedance-video";
-import { modelKey, supportsVideoAudioGeneration, supportsVideoFrameReferences } from "@/lib/video-model-capabilities";
+import { COGVIDEOX3_DURATIONS, isCogVideoX3Model, modelKey, normalizeCogVideoX3Duration, supportsVideoAudioGeneration, supportsVideoFrameReferences } from "@/lib/video-model-capabilities";
 import { deleteStoredMedia, downloadRemoteMedia, resolveMediaUrl, uploadMediaFile, uploadRemoteMediaToServer } from "@/services/file-storage";
 import { deleteStoredImages, resolveImageUrl, uploadImage } from "@/services/image-storage";
 import { deleteVideoGenerationLogs, fetchVideoGenerationLogs, saveVideoGenerationLogs } from "@/services/api/generation-logs";
@@ -27,6 +27,8 @@ import { useThemeStore } from "@/stores/use-theme-store";
 import { useUserStore } from "@/stores/use-user-store";
 import type { ReferenceImage } from "@/types/image";
 import type { ReferenceAudio, ReferenceVideo } from "@/types/media";
+
+const cogVideoX3DurationOptions = COGVIDEOX3_DURATIONS.map((value) => ({ value, label: `${value}s` }));
 
 type GeneratedVideo = {
     id: string;
@@ -1361,6 +1363,7 @@ function WorkbenchPanel({
     setBottomSettingsCollapsed?: (value: boolean) => void;
 }) {
     const frameReferencesEnabled = supportsVideoFrameReferences(model);
+    const cogVideoX3 = isCogVideoX3Model(model);
     const audioGenerationEnabled = supportsVideoAudioGeneration(model);
     const generateAudio = boolConfig(config.videoGenerateAudio, false);
     const klingBottomConfig = resolveKlingWorkbenchConfig(config, model);
@@ -1427,7 +1430,7 @@ function WorkbenchPanel({
                                 <>
                                     <QuickSelect label="清晰度" value={normalizeVideoResolutionValue(config.vquality)} options={isSeedanceVideoConfig(config) ? videoResolutionOptions.slice(0, 3) : videoResolutionOptions} onChange={(value) => { updateConfig("vquality", value); updateConfig("size", videoSizeForResolution(value, config.size)); }} />
                                     <QuickSelect label="尺寸" value={videoSizeForResolution(config.vquality, config.size)} options={videoSizeOptions(config.vquality)} onChange={(value) => updateConfig("size", value)} />
-                                    <QuickNumber label="秒数" value={normalizeVideoSeconds(config.videoSeconds)} min={1} max={30} onChange={(value) => updateConfig("videoSeconds", value)} />
+                                    {cogVideoX3 ? <QuickSelect label="秒数" value={normalizeCogVideoX3Duration(config.videoSeconds)} options={cogVideoX3DurationOptions} onChange={(value) => updateConfig("videoSeconds", value)} /> : <QuickNumber label="秒数" value={normalizeVideoSeconds(config.videoSeconds)} min={1} max={30} onChange={(value) => updateConfig("videoSeconds", value)} />}
                                     {audioGenerationEnabled ? <QuickSwitch label="生成音频" checked={generateAudio} onChange={(checked) => updateConfig("videoGenerateAudio", String(checked))} /> : null}
                                     {motionControl ? <QuickSelect label="角色朝向参考" value={normalizeCharacterOrientation(config.videoCharacterOrientation)} options={characterOrientationOptions} onChange={(value) => updateConfig("videoCharacterOrientation", value)} /> : null}
                                 </>
@@ -2758,6 +2761,7 @@ function buildLog({ prompt, model, config, references, firstFrame, lastFrame, vi
 
 function buildVideoConfig(config: AiConfig, model: string): AiConfig {
     const seedance = isSeedanceVideoConfig({ ...config, model });
+    const cogVideoX3 = isCogVideoX3Model(model);
     const klingV26 = isAPIMartKlingV26Config(config, model);
     const apimartKlingV3 = isAPIMartKlingV3Config(config, model);
     const kieKlingV3 = isKIEKlingV3Config(config, model);
@@ -2773,7 +2777,7 @@ function buildVideoConfig(config: AiConfig, model: string): AiConfig {
         videoChannelId,
         activeChannelId: videoChannelId,
         size: kling ? normalizeKlingV26Ratio(config.size) : seedance ? normalizeSeedanceRatio(config.size) : normalizeVideoSize(config.size),
-        videoSeconds: klingV3 ? normalizeKlingV3Seconds(config.videoSeconds) : klingV26 ? normalizeKlingV26Seconds(config.videoSeconds) : normalizeVideoSeconds(config.videoSeconds),
+        videoSeconds: cogVideoX3 ? normalizeCogVideoX3Duration(config.videoSeconds) : klingV3 ? normalizeKlingV3Seconds(config.videoSeconds) : klingV26 ? normalizeKlingV26Seconds(config.videoSeconds) : normalizeVideoSeconds(config.videoSeconds),
         videoMode,
         videoNegativePrompt: kieKlingV3 ? "" : config.videoNegativePrompt || "",
         videoMultiShot: klingV3 && kieKlingOmni !== "transformation" ? String(boolConfig(config.videoMultiShot, false)) : "false",

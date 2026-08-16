@@ -27,8 +27,9 @@ import { PANORAMA_IMAGE_SIZE, PANORAMA_NODE_SIZE, buildPanoramaPrompt, isCanvasI
 import { applyCameraPrompt } from "../utils/canvas-camera";
 import { GROUP_PADDING, findContainingGroupId, findGroupDropTarget, getNodeBounds, snapNodesIntoGroup } from "../utils/canvas-group";
 import { App, Button, Dropdown, Modal } from "antd";
-import { modelKey, supportsVideoAudioGeneration, supportsVideoFrameReferences } from "@/lib/video-model-capabilities";
+import { isCogVideoX3Model, modelKey, supportsVideoAudioGeneration, supportsVideoFrameReferences } from "@/lib/video-model-capabilities";
 import { isMimoVoiceCloneModel } from "@/lib/mimo-tts";
+import { isGlmTtsModel } from "@/lib/audio-generation";
 import { isKIESeedreamLayerDecompositionModel } from "@/lib/kie-models";
 import { NODE_DEFAULT_SIZE, getNodeSpec } from "../constants";
 import { ActiveConnectionPath, ConnectionPath } from "../components/canvas-connections";
@@ -3070,8 +3071,8 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                         videoGenerateAudio: agentEffectiveConfig.videoGenerateAudio,
                         videoSupportsAudio: supportsVideoAudioGeneration(videoModel),
                         videoDuration: canvasAgentVideoDurationHint(videoModel),
-                        audioVoice: agentEffectiveConfig.audioVoice,
-                        audioFormat: agentEffectiveConfig.audioFormat,
+                        audioVoice: isGlmTtsModel(agentEffectiveConfig.audioModel) ? agentEffectiveConfig.glmTtsVoice : agentEffectiveConfig.audioVoice,
+                        audioFormat: isGlmTtsModel(agentEffectiveConfig.audioModel) ? agentEffectiveConfig.glmTtsFormat : agentEffectiveConfig.audioFormat,
                     };
                 }
 
@@ -3295,8 +3296,14 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                         metadata.generateAudio = String(generateAudio);
                     }
                     if (mode === "audio") {
-                        metadata.audioVoice = stringValue("voice") || generationConfig.audioVoice;
-                        metadata.audioInstructions = stringValue("instructions") || generationConfig.audioInstructions;
+                        if (isGlmTtsModel(generationConfig.model)) {
+                            metadata.glmTtsVoice = stringValue("voice") || generationConfig.glmTtsVoice;
+                            metadata.glmTtsFormat = generationConfig.glmTtsFormat;
+                            metadata.glmTtsSpeed = generationConfig.glmTtsSpeed;
+                        } else {
+                            metadata.audioVoice = stringValue("voice") || generationConfig.audioVoice;
+                            metadata.audioInstructions = stringValue("instructions") || generationConfig.audioInstructions;
+                        }
                     }
 
                     const layoutSourceNodes = mode === "image" ? [] : mode === "video" ? nodesRef.current.filter((node) => !node.metadata?.groupId && (node.type === CanvasNodeType.Text || isCanvasImageNodeType(node.type) || node.type === CanvasNodeType.Group)) : sourceNodes;
@@ -4447,6 +4454,9 @@ function buildAudioGenerationMetadata(config: AiConfig, sourceMetadata?: CanvasN
         audioFormat: config.audioFormat,
         audioSpeed: config.audioSpeed,
         audioInstructions: config.audioInstructions,
+        glmTtsVoice: config.glmTtsVoice,
+        glmTtsFormat: config.glmTtsFormat,
+        glmTtsSpeed: config.glmTtsSpeed,
         mimoTtsVoice: config.mimoTtsVoice,
         mimoTtsFormat: config.mimoTtsFormat,
         mimoVoiceDesignPrompt: config.mimoVoiceDesignPrompt,
@@ -4858,6 +4868,7 @@ function canvasAgentTaskSummary(node: CanvasNodeData) {
 
 function canvasAgentVideoDurationHint(modelName: string) {
     const key = modelKey(modelName);
+    if (isCogVideoX3Model(key)) return { values: [5, 10], range: "仅 5 或 10 秒" };
     if (key.includes("seedance")) return { values: [-1, 4, 5, 6, 8, 10, 12, 15], range: "智能或 4-15 秒" };
     if (isCanvasAgentKlingV3(key)) return { values: [3, 15], range: "3-15 秒" };
     if (isCanvasAgentKlingV26(key)) return { values: [5, 10], range: "仅 5 或 10 秒" };
@@ -4867,6 +4878,7 @@ function canvasAgentVideoDurationHint(modelName: string) {
 function validateCanvasAgentVideoSeconds(modelName: string, seconds: number) {
     if (!Number.isFinite(seconds)) return "视频时长无效，请先向用户确认单镜头时长";
     const key = modelKey(modelName);
+    if (isCogVideoX3Model(key) && seconds !== 5 && seconds !== 10) return "当前 CogVideoX-3 模型仅支持 5 或 10 秒";
     if (key.includes("seedance") && seconds !== -1 && (seconds < 4 || seconds > 15)) return "当前 Seedance 模型仅支持智能时长或 4-15 秒";
     if (isCanvasAgentKlingV3(key) && (seconds < 3 || seconds > 15)) return "当前 Kling 3 模型仅支持 3-15 秒";
     if (isCanvasAgentKlingV26(key) && seconds !== 5 && seconds !== 10) return "当前 Kling 2.6 模型仅支持 5 或 10 秒";
@@ -4913,6 +4925,9 @@ function buildGenerationConfig(config: AiConfig, node: CanvasNodeData | undefine
         audioFormat: node?.metadata?.audioFormat || config.audioFormat || defaultConfig.audioFormat,
         audioSpeed: node?.metadata?.audioSpeed || config.audioSpeed || defaultConfig.audioSpeed,
         audioInstructions: node?.metadata?.audioInstructions || config.audioInstructions || defaultConfig.audioInstructions,
+        glmTtsVoice: node?.metadata?.glmTtsVoice || config.glmTtsVoice || defaultConfig.glmTtsVoice,
+        glmTtsFormat: node?.metadata?.glmTtsFormat || config.glmTtsFormat || defaultConfig.glmTtsFormat,
+        glmTtsSpeed: node?.metadata?.glmTtsSpeed || config.glmTtsSpeed || defaultConfig.glmTtsSpeed,
         mimoTtsVoice: node?.metadata?.mimoTtsVoice || config.mimoTtsVoice || defaultConfig.mimoTtsVoice,
         mimoTtsFormat: node?.metadata?.mimoTtsFormat || config.mimoTtsFormat || defaultConfig.mimoTtsFormat,
         mimoVoiceDesignPrompt: node?.metadata?.mimoVoiceDesignPrompt || config.mimoVoiceDesignPrompt || defaultConfig.mimoVoiceDesignPrompt,
