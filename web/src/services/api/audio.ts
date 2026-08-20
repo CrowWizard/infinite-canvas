@@ -2,6 +2,7 @@ import axios from "axios";
 import { nanoid } from "nanoid";
 
 import { audioMimeType, isGlmTtsModel, normalizeAudioFormatValue, normalizeAudioSpeedValue, normalizeAudioVoiceValue, normalizeGlmTtsFormat, normalizeGlmTtsSpeed, normalizeGlmTtsVoice } from "@/lib/audio-generation";
+import { isGrok2APITtsConfig, normalizeGrokTtsFormat, normalizeGrokTtsLanguage, normalizeGrokTtsSpeed, type GrokTtsVoice } from "@/lib/grok-tts";
 import { isMimoPresetTtsModel, isMimoTtsModel, isMimoVoiceCloneModel, isMimoVoiceDesignModel, normalizeMimoTtsFormat, normalizeMimoTtsVoice } from "@/lib/mimo-tts";
 import { resolveMediaUrl, uploadMediaFile, type UploadedFile } from "@/services/file-storage";
 import { buildApiUrl, channelIdForActiveModel, localChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
@@ -28,6 +29,7 @@ export type CanvasAudioTask = {
 export type CanvasAudioTaskOptions = { nodeId?: string; sourceId?: string; clientTaskId?: string };
 
 type MiMoAudioResponse = { choices?: Array<{ message?: { audio?: { data?: string } } }> };
+const grokTtsVoiceRequests = new Map<string, Promise<GrokTtsVoice[]>>();
 
 function usesAccountProxy(config: AiConfig) {
     const token = useUserStore.getState().token;
@@ -64,6 +66,19 @@ function aiHeaders(config: AiConfig) {
 
 function refreshRemoteUser(config: AiConfig) {
     if (usesAccountProxy(config)) void useUserStore.getState().hydrateUser();
+}
+
+export function fetchGrokTtsVoices(config: AiConfig, model: string) {
+    const requestConfig = { ...config, model, audioModel: model };
+    const requestKey = `${aiApiUrl(requestConfig, "/tts/voices")}|${channelIdForActiveModel(requestConfig)}|${model}`;
+    const existing = grokTtsVoiceRequests.get(requestKey);
+    if (existing) return existing;
+
+    const request = axios.get<{ voices?: GrokTtsVoice[] }>(aiApiUrl(requestConfig, "/tts/voices"), { headers: aiHeaders(requestConfig), params: { model } })
+        .then((response) => Array.isArray(response.data.voices) ? response.data.voices.filter((voice) => Boolean(voice.voice_id)) : [])
+        .finally(() => grokTtsVoiceRequests.delete(requestKey));
+    grokTtsVoiceRequests.set(requestKey, request);
+    return request;
 }
 
 export async function requestAudioGeneration(config: AiConfig, prompt: string, referenceAudio?: ReferenceAudio): Promise<Blob> {
@@ -174,6 +189,16 @@ async function buildAudioSpeechRequest(config: AiConfig, model: string, prompt: 
             response_format: normalizeMimoTtsFormat(config.mimoTtsFormat),
         };
     }
+    if (isGrok2APITtsConfig(config, model)) {
+        return {
+            model,
+            input: prompt,
+            voice_id: config.grokTtsVoice || "eve",
+            language: normalizeGrokTtsLanguage(config.grokTtsLanguage),
+            output_format: { codec: normalizeGrokTtsFormat(config.grokTtsFormat) },
+            speed: Number(normalizeGrokTtsSpeed(config.grokTtsSpeed)),
+        };
+    }
 
     const instructions = config.audioInstructions.trim();
     return {
@@ -189,6 +214,7 @@ async function buildAudioSpeechRequest(config: AiConfig, model: string, prompt: 
 function audioResponseFormat(config: AiConfig, model: string) {
     if (isGlmTtsModel(model)) return normalizeGlmTtsFormat(config.glmTtsFormat);
     if (isMimoTtsModel(model)) return normalizeMimoTtsFormat(config.mimoTtsFormat);
+    if (isGrok2APITtsConfig(config, model)) return normalizeGrokTtsFormat(config.grokTtsFormat);
     return normalizeAudioFormatValue(config.audioFormat);
 }
 
