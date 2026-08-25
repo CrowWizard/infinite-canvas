@@ -18,10 +18,13 @@ export type CanvasResourceReference = {
 
 export function assistantReferenceContentFromNode(node: CanvasNodeData): Partial<CanvasAssistantReference> | null {
     const content = node.metadata?.content;
+    if (node.type === CanvasNodeType.Text) {
+        const text = content || node.metadata?.prompt;
+        return text ? { text } : null;
+    }
     if (!content) return null;
     if (isCanvasImageNodeType(node.type)) return { dataUrl: content, url: undefined, storageKey: node.metadata.storageKey, mimeType: node.metadata.mimeType };
     if (node.type === CanvasNodeType.Video || node.type === CanvasNodeType.Audio) return { dataUrl: undefined, url: content, storageKey: node.metadata.storageKey, mimeType: node.metadata.mimeType };
-    if (node.type === CanvasNodeType.Text) return { text: content };
     return null;
 }
 
@@ -30,6 +33,10 @@ export function buildCanvasResourceReferences(nodes: CanvasNodeData[], connectio
     const globalReferences = labelResourceNodes(nodes.filter(isResourceNode), false);
     const activeByNodeId = new Map(labelResourceNodes(contextNodes, true).map((reference) => [reference.nodeId, reference]));
     return globalReferences.map((reference) => activeByNodeId.get(reference.nodeId) || reference);
+}
+
+export function buildAllCanvasResourceReferences(nodes: CanvasNodeData[]) {
+    return labelResourceNodes(nodes.filter(isResourceNode), true);
 }
 
 export function buildNodeMentionReferences(node: CanvasNodeData, nodes: CanvasNodeData[], connections: CanvasConnection[]) {
@@ -72,7 +79,7 @@ function labelResourceNodes(nodes: CanvasNodeData[], active: boolean) {
         const kind = resourceKind(node);
         if (!kind) return [];
         const index = counts[kind]++;
-        const label = labelForKind(kind, index);
+        const label = canvasResourceLabel(kind, index);
         return [
             {
                 id: node.id,
@@ -88,7 +95,7 @@ function labelResourceNodes(nodes: CanvasNodeData[], active: boolean) {
     });
 }
 
-function labelForKind(kind: CanvasResourceKind, index: number) {
+export function canvasResourceLabel(kind: CanvasResourceKind, index: number) {
     if (kind === "image") return imageReferenceLabel(index);
     if (kind === "video") return seedanceReferenceLabel("video", index);
     if (kind === "audio") return seedanceReferenceLabel("audio", index);

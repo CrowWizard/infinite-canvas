@@ -351,6 +351,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
     const [canvasTool, setCanvasTool] = useState<"select" | "pan">("select");
     const [size, setSize] = useState({ width: 1200, height: 720 });
     const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
+    const [agentReferenceNodeClick, setAgentReferenceNodeClick] = useState<{ nodeId: string | null; version: number }>({ nodeId: null, version: 0 });
     const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
     const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
     const [connectingParams, setConnectingParams] = useState<ConnectionHandle | null>(null);
@@ -1284,6 +1285,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
             setEditingNodeId(null);
             if (pendingConnectionCreateRef.current) cancelPendingConnectionCreate();
             if (event.button !== 0) return;
+            setAgentReferenceNodeClick((current) => ({ ...current, nodeId: null }));
 
             const world = screenToCanvas(event.clientX, event.clientY);
             const nextSelectionBox = {
@@ -1307,6 +1309,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
 
     const handleNodeMouseDown = useCallback((event: ReactMouseEvent, nodeId: string) => {
         event.stopPropagation();
+        if (event.button === 0) setAgentReferenceNodeClick((current) => ({ nodeId, version: current.version + 1 }));
         setContextMenu(null);
         setHoveredNodeId(null);
         setToolbarNodeId(null);
@@ -4090,12 +4093,12 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                 <CanvasAssistantPanel
                     nodes={nodes}
                     selectedNodeIds={selectedNodeIds}
+                    referenceNodeClick={agentReferenceNodeClick}
                     sessions={chatSessions}
                     activeSessionId={activeChatId}
                     agentConfig={resolvedAgentConfig}
                     width={agentPanel.width}
                     onWidthChange={(width) => setAgentPanel((current) => ({ ...current, width }))}
-                    onSelectNodeIds={setSelectedNodeIds}
                     onSessionsChange={handleAssistantSessionsChange}
                     onAgentConfigChange={handleAgentConfigChange}
                     onPasteImage={pasteAssistantImage}
