@@ -30,13 +30,13 @@ export function assistantReferenceContentFromNode(node: CanvasNodeData): Partial
 
 export function buildCanvasResourceReferences(nodes: CanvasNodeData[], connections: CanvasConnection[], contextNodeId?: string | null) {
     const contextNodes = contextNodeId ? getMentionResourceNodes(contextNodeId, nodes, connections) : [];
-    const globalReferences = labelResourceNodes(nodes.filter(isResourceNode), false);
+    const globalReferences = labelResourceNodes(nodes.filter(isCanvasReferenceNode), false);
     const activeByNodeId = new Map(labelResourceNodes(contextNodes, true).map((reference) => [reference.nodeId, reference]));
     return globalReferences.map((reference) => activeByNodeId.get(reference.nodeId) || reference);
 }
 
 export function buildAllCanvasResourceReferences(nodes: CanvasNodeData[]) {
-    return labelResourceNodes(nodes.filter(isResourceNode), true);
+    return labelResourceNodes(nodes.filter(isCanvasReferenceNode), true);
 }
 
 export function buildNodeMentionReferences(node: CanvasNodeData, nodes: CanvasNodeData[], connections: CanvasConnection[]) {
@@ -49,7 +49,7 @@ export function getMentionResourceNodes(nodeId: string, nodes: CanvasNodeData[],
     const ownInputs = getContextResourceNodes(nodeId, nodes, connections);
     if (ownInputs.length) return ownInputs;
     const node = nodes.find((item) => item.id === nodeId);
-    return node && isResourceNode(node) ? [node] : [];
+    return node && isCanvasReferenceNode(node) ? [node] : [];
 }
 
 export function getGenerationResourceNodes(nodeId: string, nodes: CanvasNodeData[], connections: CanvasConnection[]) {
@@ -64,7 +64,7 @@ function getContextResourceNodes(nodeId: string, nodes: CanvasNodeData[], connec
     return connections
         .filter((connection) => connection.toNodeId === nodeId)
         .map((connection) => nodes.find((node) => node.id === connection.fromNodeId))
-        .filter((node): node is CanvasNodeData => Boolean(node && isResourceNode(node)));
+        .filter((node): node is CanvasNodeData => Boolean(node && isCanvasReferenceNode(node)));
 }
 
 function getConnectedConfigResourceNodes(nodeId: string, nodes: CanvasNodeData[], connections: CanvasConnection[]) {
@@ -102,7 +102,7 @@ export function canvasResourceLabel(kind: CanvasResourceKind, index: number) {
     return `文本${index + 1}`;
 }
 
-function isResourceNode(node: CanvasNodeData) {
+export function isCanvasReferenceNode(node: CanvasNodeData) {
     return Boolean(resourceKind(node));
 }
 

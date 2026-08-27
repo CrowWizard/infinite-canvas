@@ -372,6 +372,7 @@ export function CanvasAssistantPanel({
             style={{ overflow: "clip", pointerEvents: closing ? "none" : undefined }}
         >
             <motion.aside
+                data-canvas-agent-panel
                 className="relative flex shrink-0 flex-col border-l"
                 initial={{ x: 48 }}
                 animate={{ x: closing ? 28 : 0 }}
