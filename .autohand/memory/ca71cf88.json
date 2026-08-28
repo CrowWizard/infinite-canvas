@@ -1,0 +1,13 @@
+{
+  "id": "ca71cf88",
+  "content": "画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。",
+  "createdAt": "2026-08-27T18:07:42.133Z",
+  "updatedAt": "2026-08-27T18:07:42.133Z",
+  "tags": [
+    "nextjs",
+    "static-export",
+    "canvas",
+    "routing"
+  ],
+  "source": "turn-reflection"
+}

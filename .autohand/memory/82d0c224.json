@@ -1,0 +1,13 @@
+{
+  "id": "82d0c224",
+  "content": "画布编辑页使用静态查询参数路由 `/canvas?id=项目ID`，不使用运行时动态路由 `/canvas/[id]`；前端 API 请求保持相对 `/api/` 路径，因此后端无需额外增加 CORS 适配。",
+  "createdAt": "2026-08-27T14:31:21.218Z",
+  "updatedAt": "2026-08-27T14:31:21.218Z",
+  "tags": [
+    "Next.js",
+    "canvas",
+    "路由",
+    "API"
+  ],
+  "source": "turn-reflection"
+}

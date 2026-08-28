@@ -1,0 +1,37 @@
+[
+  {
+    "content": "梳理现有认证、路由、数据库初始化和 AI 请求链路",
+    "activeForm": "梳理现有认证、路由、数据库初始化和 AI 请求链路",
+    "status": "in_progress",
+    "id": "task-1787881850633-0",
+    "title": "梳理现有认证、路由、数据库初始化和 AI 请求链路"
+  },
+  {
+    "content": "实现 NewAPI 数据模型、凭据加密配置和仓储基础",
+    "activeForm": "实现 NewAPI 数据模型、凭据加密配置和仓储基础",
+    "status": "pending",
+    "id": "task-1787881850633-1",
+    "title": "实现 NewAPI 数据模型、凭据加密配置和仓储基础"
+  },
+  {
+    "content": "实现 NewAPI 客户端、登录同步和模型目录服务接口",
+    "activeForm": "实现 NewAPI 客户端、登录同步和模型目录服务接口",
+    "status": "pending",
+    "id": "task-1787881850633-2",
+    "title": "实现 NewAPI 客户端、登录同步和模型目录服务接口"
+  },
+  {
+    "content": "实现 AI 服务端代理并停用注册及前端直连配置",
+    "activeForm": "实现 AI 服务端代理并停用注册及前端直连配置",
+    "status": "pending",
+    "id": "task-1787881850633-3",
+    "title": "实现 AI 服务端代理并停用注册及前端直连配置"
+  },
+  {
+    "content": "补充文档与聚焦测试，检查最终差异",
+    "activeForm": "补充文档与聚焦测试，检查最终差异",
+    "status": "pending",
+    "id": "task-1787881850633-4",
+    "title": "补充文档与聚焦测试，检查最终差异"
+  }
+]

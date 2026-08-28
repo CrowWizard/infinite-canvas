@@ -1,0 +1,12 @@
+{
+  "id": "8715b014",
+  "content": "后端数据库已确定为 PostgreSQL 专用，默认 `STORAGE_DRIVER=postgres`；不要恢复 SQLite 或 MySQL 兼容分支，除非用户明确要求。",
+  "createdAt": "2026-08-27T17:07:52.003Z",
+  "updatedAt": "2026-08-27T17:40:12.233Z",
+  "tags": [
+    "backend",
+    "database",
+    "postgresql"
+  ],
+  "source": "turn-reflection"
+}

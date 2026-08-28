@@ -1,0 +1,12 @@
+{
+  "id": "cad2c614",
+  "content": "Infinite Canvas 数据库设计拆分为 users、user_newapi_credentials、user_newapi_tokens、ai_models 和 user_ai_models；用户基础信息与 NewAPI 凭据、Token、模型权限分离管理。",
+  "createdAt": "2026-08-27T18:12:10.190Z",
+  "updatedAt": "2026-08-27T18:12:10.190Z",
+  "tags": [
+    "database",
+    "schema",
+    "newapi"
+  ],
+  "source": "turn-reflection"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "8a4b7c30",
+  "content": "For NewAPI users, persist the NewAPI user ID and token ID plus an encrypted NewAPI token key on the server; never expose model base URLs or API keys to the browser, and do not store user passwords.",
+  "createdAt": "2026-08-27T17:49:35.628Z",
+  "updatedAt": "2026-08-27T17:49:35.628Z",
+  "tags": [
+    "newapi",
+    "credentials",
+    "security",
+    "authentication"
+  ],
+  "source": "turn-reflection"
+}

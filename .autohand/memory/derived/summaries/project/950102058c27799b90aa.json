@@ -1,0 +1,2223 @@
+{
+  "version": 1,
+  "level": "project",
+  "snapshotId": "950102058c27799b90aa",
+  "entries": [
+    {
+      "id": "4f34e208",
+      "content": "该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。",
+      "createdAt": "2026-08-27T13:01:36.906Z",
+      "updatedAt": "2026-08-27T13:01:36.906Z",
+      "tags": [
+        "架构",
+        "部署",
+        "后端"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "73c3da2c",
+      "content": "画布项目以完整 JSON 保存到本地 localforage 或服务端 canvas_projects，图片和媒体通过 storageKey 引用 Blob/对象存储；异步图片、音频和视频任务使用独立数据库表以支持刷新、关闭页面和多设备恢复。",
+      "createdAt": "2026-08-27T13:01:37.251Z",
+      "updatedAt": "2026-08-27T13:01:37.251Z",
+      "tags": [
+        "画布",
+        "数据持久化",
+        "异步任务",
+        "对象存储"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "00593f86",
+      "content": "本项目的总体架构说明统一维护在 `docs/architecture.md`，并应从 `docs/index.md` 的开发文档部分提供入口。",
+      "createdAt": "2026-08-27T13:06:44.069Z",
+      "updatedAt": "2026-08-27T13:06:44.069Z",
+      "tags": [
+        "文档",
+        "架构",
+        "docs"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "304f8675",
+      "content": "用户要求将重要分析和操作说明整理为项目内的 Markdown 文档，并放入 docs 目录，同时通过 docs/index.md 建立索引入口。",
+      "createdAt": "2026-08-27T13:11:33.387Z",
+      "updatedAt": "2026-08-27T13:11:33.387Z",
+      "tags": [
+        "文档",
+        "Markdown",
+        "docs",
+        "索引"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "1e4c6618",
+      "content": "项目部署需要支持不使用 Docker 的方式：Go 后端与 Next.js 前端分开运行，生产环境可使用 systemd 管理进程、Nginx 反向代理和 HTTPS。",
+      "createdAt": "2026-08-27T13:11:33.632Z",
+      "updatedAt": "2026-08-27T13:11:33.632Z",
+      "tags": [
+        "部署",
+        "Go",
+        "Next.js",
+        "systemd",
+        "Nginx"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "9ab2f9db",
+      "content": "移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+      "createdAt": "2026-08-27T13:48:49.879Z",
+      "updatedAt": "2026-08-27T13:48:49.879Z",
+      "tags": [
+        "database",
+        "dependencies",
+        "testing",
+        "documentation"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "295846f3",
+      "content": "该工作区曾出现 Go 链接器内部 `cmd/internal/goobj` 的 slice bounds panic；后续完整构建失败时，应区分工具链/缓存异常与项目源码或依赖编译错误。",
+      "createdAt": "2026-08-27T13:48:50.191Z",
+      "updatedAt": "2026-08-27T13:48:50.191Z",
+      "tags": [
+        "go",
+        "build",
+        "troubleshooting"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "15846c1c",
+      "content": "用户要求的项目改动需先取得明确许可；得到“允许修改”后方可编辑，并必须保留工作区已有的用户改动。",
+      "createdAt": "2026-08-27T13:48:50.525Z",
+      "updatedAt": "2026-08-27T13:48:50.525Z",
+      "tags": [
+        "workflow",
+        "git",
+        "safety"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "a9f0071c",
+      "content": "将数据库多驱动实现改为单一 PostgreSQL 驱动时，应同步更新默认配置、相关测试、部署/架构文档及待测试记录。",
+      "createdAt": "2026-08-27T13:50:16.573Z",
+      "updatedAt": "2026-08-27T13:50:16.573Z",
+      "tags": [
+        "database",
+        "documentation",
+        "testing",
+        "conventions"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "6b55889d",
+      "content": "该环境曾在完整 Go 构建的链接阶段触发 Go 工具链内部 panic（cmd/internal/goobj）；排障时可先执行 go clean -cache，再用 go build -a 重试。",
+      "createdAt": "2026-08-27T13:50:16.852Z",
+      "updatedAt": "2026-08-27T13:50:16.852Z",
+      "tags": [
+        "go",
+        "build",
+        "troubleshooting"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "82d0c224",
+      "content": "画布编辑页使用静态查询参数路由 `/canvas?id=项目ID`，不使用运行时动态路由 `/canvas/[id]`；前端 API 请求保持相对 `/api/` 路径，因此后端无需额外增加 CORS 适配。",
+      "createdAt": "2026-08-27T14:31:21.218Z",
+      "updatedAt": "2026-08-27T14:31:21.218Z",
+      "tags": [
+        "Next.js",
+        "canvas",
+        "路由",
+        "API"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "4633de27",
+      "content": "项目 Git `origin` 远程地址使用 SSH：`git@github.com:CrowWizard/infinite-canvas.git`。",
+      "createdAt": "2026-08-27T14:32:05.246Z",
+      "updatedAt": "2026-08-27T14:32:05.246Z",
+      "tags": [
+        "git",
+        "remote",
+        "github"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "c48789bf",
+      "content": "前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+      "createdAt": "2026-08-27T17:07:52.304Z",
+      "updatedAt": "2026-08-27T17:07:52.304Z",
+      "tags": [
+        "frontend",
+        "pnpm",
+        "build",
+        "dependencies"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "46c56aa8",
+      "content": "本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端。",
+      "createdAt": "2026-08-27T14:31:19.847Z",
+      "updatedAt": "2026-08-27T17:40:11.309Z",
+      "tags": [
+        "deployment",
+        "nginx",
+        "static-export",
+        "api"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "bb7e4e3a",
+      "content": "前端已改为 Next.js 静态导出（`output: \"export\"`），画布编辑地址统一使用 `/canvas?id=项目ID`，不能再新增依赖运行时参数的动态路由。",
+      "createdAt": "2026-08-27T17:07:51.436Z",
+      "updatedAt": "2026-08-27T17:40:11.621Z",
+      "tags": [
+        "frontend",
+        "nextjs",
+        "routing",
+        "static-export"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "8715b014",
+      "content": "后端数据库已确定为 PostgreSQL 专用，默认 `STORAGE_DRIVER=postgres`；不要恢复 SQLite 或 MySQL 兼容分支，除非用户明确要求。",
+      "createdAt": "2026-08-27T17:07:52.003Z",
+      "updatedAt": "2026-08-27T17:40:12.233Z",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "2f9b3bd3",
+      "content": "当前 Go API 认证、设置和提示词路由使用 `/api/auth/*`、`/api/settings`、`/api/prompts`；不要将这些路径误改为 `/api/v1/*`。`/api/v1/*` 仅用于部分 AI、用户配置和画布任务接口。",
+      "createdAt": "2026-08-27T17:07:51.725Z",
+      "updatedAt": "2026-08-27T17:40:12.546Z",
+      "tags": [
+        "backend",
+        "api-contract",
+        "routing"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "2e48fbcf",
+      "content": "画布入口的路由判断必须与列表页 Hooks 分离：`CanvasRoute` 只读取查询参数并渲染独立的编辑器或列表组件，避免条件返回改变同一组件的 Hooks 数量。",
+      "createdAt": "2026-08-27T17:40:12.857Z",
+      "updatedAt": "2026-08-27T17:40:12.857Z",
+      "tags": [
+        "frontend",
+        "react",
+        "hooks",
+        "canvas"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "c892665d",
+      "content": "修改前必须先获得用户明确授权；工作区已有未提交修改时不得回滚或覆盖，只在必要范围内追加修改。",
+      "createdAt": "2026-08-27T17:40:13.793Z",
+      "updatedAt": "2026-08-27T17:40:13.793Z",
+      "tags": [
+        "workflow",
+        "git",
+        "safety"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "0f4a6278",
+      "content": "Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do not revert or overwrite existing workspace changes.",
+      "createdAt": "2026-08-27T17:49:34.070Z",
+      "updatedAt": "2026-08-27T17:49:34.070Z",
+      "tags": [
+        "workflow",
+        "safety",
+        "git"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "4abc7988",
+      "content": "The deployment architecture uses a statically exported Next.js frontend served by Nginx under the same domain, with only `/api/` reverse-proxied to the Go service; no Next.js runtime/API proxy is deployed.",
+      "createdAt": "2026-08-27T17:49:34.381Z",
+      "updatedAt": "2026-08-27T17:49:34.381Z",
+      "tags": [
+        "architecture",
+        "deployment",
+        "nginx",
+        "nextjs"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "0f63c12d",
+      "content": "Canvas project routes must use the static-export-compatible query form `/canvas?id=<projectId>` rather than dynamic `/canvas/[id]` routes.",
+      "createdAt": "2026-08-27T17:49:34.693Z",
+      "updatedAt": "2026-08-27T17:49:34.693Z",
+      "tags": [
+        "frontend",
+        "routing",
+        "static-export"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "3e3ebf00",
+      "content": "The backend is PostgreSQL-only; SQLite and MySQL are intentionally removed from configuration, drivers, and deployment assumptions.",
+      "createdAt": "2026-08-27T17:49:35.004Z",
+      "updatedAt": "2026-08-27T17:49:35.004Z",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "ae975e71",
+      "content": "Future AI architecture should use NewAPI as the sole upstream: Infinite Canvas proxies login and all model calls server-side, has no registration endpoint, and disallows local/browser-direct model providers.",
+      "createdAt": "2026-08-27T17:49:35.316Z",
+      "updatedAt": "2026-08-27T17:49:35.316Z",
+      "tags": [
+        "architecture",
+        "ai",
+        "newapi",
+        "security"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "8a4b7c30",
+      "content": "For NewAPI users, persist the NewAPI user ID and token ID plus an encrypted NewAPI token key on the server; never expose model base URLs or API keys to the browser, and do not store user passwords.",
+      "createdAt": "2026-08-27T17:49:35.628Z",
+      "updatedAt": "2026-08-27T17:49:35.628Z",
+      "tags": [
+        "newapi",
+        "credentials",
+        "security",
+        "authentication"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "34f45cad",
+      "content": "The image, video, text, and audio model lists must be returned and validated by the Infinite Canvas backend based on NewAPI permissions; frontend model-name heuristics and user-managed local channels should be removed.",
+      "createdAt": "2026-08-27T17:49:35.940Z",
+      "updatedAt": "2026-08-27T17:49:35.940Z",
+      "tags": [
+        "ai",
+        "models",
+        "backend",
+        "frontend"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "72f51012",
+      "content": "画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "createdAt": "2026-08-27T14:32:03.429Z",
+      "updatedAt": "2026-08-27T17:56:24.505Z",
+      "tags": [
+        "nextjs",
+        "canvas",
+        "routing"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "a2fc9c1c",
+      "content": "四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。",
+      "createdAt": "2026-08-27T17:59:41.947Z",
+      "updatedAt": "2026-08-27T17:59:41.947Z",
+      "tags": [
+        "models",
+        "permissions",
+        "frontend-backend"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "72fcde74",
+      "content": "项目后端使用 Go、Gin、GORM 和 PostgreSQL，数据库通过 GORM AutoMigrate 管理；用户 NewAPI Token 应独立建表，模型定义与用户模型权限分开建模。",
+      "createdAt": "2026-08-27T17:59:42.292Z",
+      "updatedAt": "2026-08-27T17:59:42.292Z",
+      "tags": [
+        "go",
+        "gorm",
+        "postgresql",
+        "database"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "8127d22f",
+      "content": "项目计划禁止本地模型和浏览器直连模型服务，所有模型请求、模型列表和用户配置统一经过 Go 服务端，模型服务地址与凭据不返回浏览器。",
+      "createdAt": "2026-08-27T18:04:08.945Z",
+      "updatedAt": "2026-08-27T18:04:08.945Z",
+      "tags": [
+        "ai",
+        "security",
+        "backend-proxy",
+        "no-local-model"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "84585c20",
+      "content": "Infinite Canvas 的 NewAPI Token 数据应独立建表，至少包含 new_api_user_id、new_api_token_id、token_key、token_status 和 is_default；token_status 用于阻止禁用 Token 发起模型请求。",
+      "createdAt": "2026-08-27T18:04:09.946Z",
+      "updatedAt": "2026-08-27T18:04:09.946Z",
+      "tags": [
+        "database",
+        "newapi",
+        "token",
+        "token-status"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "abc07b5e",
+      "content": "按用户决定，NewAPI 的 token_key 在 Infinite Canvas 服务端按明文保存，但必须使用 json:\"-\"，禁止返回前端、写入日志或出现在错误信息中；用户密码和 Session 虽需保留，也应与 token_key 分开管理。",
+      "createdAt": "2026-08-27T18:04:10.291Z",
+      "updatedAt": "2026-08-27T18:04:10.291Z",
+      "tags": [
+        "security",
+        "database",
+        "newapi",
+        "credentials"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "43ab5343",
+      "content": "涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+      "createdAt": "2026-08-27T18:06:36.396Z",
+      "updatedAt": "2026-08-27T18:06:36.396Z",
+      "tags": [
+        "security",
+        "credentials",
+        "newapi"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "7a18b82b",
+      "content": "项目使用 PostgreSQL 作为唯一数据库，后端采用 Go、Gin 和 GORM；不保留 SQLite/MySQL 兼容分支。",
+      "createdAt": "2026-08-27T13:48:49.556Z",
+      "updatedAt": "2026-08-27T18:06:38.444Z",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "2a2fa6a5",
+      "content": "项目采用 Next.js App Router 静态导出，画布项目使用 /canvas?id=项目ID 查询参数，不使用运行时动态路由 /canvas/[id]。",
+      "createdAt": "2026-08-27T18:06:38.768Z",
+      "updatedAt": "2026-08-27T18:06:38.768Z",
+      "tags": [
+        "frontend",
+        "nextjs",
+        "static-export",
+        "canvas"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "4cebf065",
+      "content": "修改代码前必须先读取相关文件并获得用户明确许可；已有工作区修改不得回滚或覆盖，只能在必要范围内追加改动。",
+      "createdAt": "2026-08-27T18:06:39.080Z",
+      "updatedAt": "2026-08-27T18:06:39.080Z",
+      "tags": [
+        "workflow",
+        "git",
+        "editing"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "eef14f8c",
+      "content": "用户希望实现保持简单直接，沿用现有 Go/Gin/GORM、Next.js/React/TypeScript 和项目目录边界，避免无关重构与过度抽象。",
+      "createdAt": "2026-08-27T18:06:39.403Z",
+      "updatedAt": "2026-08-27T18:06:39.403Z",
+      "tags": [
+        "coding-style",
+        "architecture",
+        "maintainability"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "de7c315c",
+      "content": "项目约定每次代码修改后不强制执行语法检查、构建或测试，由用户自行验证；但需要关注实际环境中依赖完整性问题可能导致前端构建失败。",
+      "createdAt": "2026-08-27T18:06:39.726Z",
+      "updatedAt": "2026-08-27T18:06:39.726Z",
+      "tags": [
+        "verification",
+        "frontend",
+        "dependencies"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "24ed5f55",
+      "content": "NewAPI 的完整 token_key 按其现有方式保存，Infinite Canvas 需要同步 token ID、完整 token_key 及 token 是否被禁用；token_key、密码和 Session/Cookie 永不返回前端或写入日志。",
+      "createdAt": "2026-08-27T17:40:13.481Z",
+      "updatedAt": "2026-08-27T18:07:41.498Z",
+      "tags": [
+        "newapi",
+        "token",
+        "security",
+        "database"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "d65e952c",
+      "content": "前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+      "createdAt": "2026-08-27T18:07:41.821Z",
+      "updatedAt": "2026-08-27T18:07:41.821Z",
+      "tags": [
+        "deployment",
+        "nginx",
+        "api",
+        "static-export"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "ca71cf88",
+      "content": "画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。",
+      "createdAt": "2026-08-27T18:07:42.133Z",
+      "updatedAt": "2026-08-27T18:07:42.133Z",
+      "tags": [
+        "nextjs",
+        "static-export",
+        "canvas",
+        "routing"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "a1ba7401",
+      "content": "本项目的模型统一由 Infinite Canvas 服务端通过 NewAPI 中转，禁止浏览器直连本地模型或保存本地 API Key、Base URL 和模型通道配置；四类模型列表由本项目服务端返回。",
+      "createdAt": "2026-08-27T18:07:40.830Z",
+      "updatedAt": "2026-08-27T18:09:57.385Z",
+      "tags": [
+        "NewAPI",
+        "AI代理",
+        "模型",
+        "安全"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "30b62a9c",
+      "content": "NewAPI 登录接口接收原始明文密码，但 NewAPI 数据库保存的是单向密码哈希，不能还原；本项目若需在 NewAPI Session 失效后自动重登录，必须在服务端以可逆加密方式保存原始密码，不能保存 NewAPI 哈希代替。",
+      "createdAt": "2026-08-27T18:09:57.708Z",
+      "updatedAt": "2026-08-27T18:09:57.708Z",
+      "tags": [
+        "NewAPI",
+        "认证",
+        "密码",
+        "安全"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "b77839bf",
+      "content": "本项目需要保存 NewAPI 用户 ID、Token ID、完整 token_key 及 token 启用状态；token_key 按当前方案保存为可直接用于模型请求的完整 Key，并且密码、Cookie 和 token_key 均不得返回前端或写入日志。",
+      "createdAt": "2026-08-27T18:09:58.387Z",
+      "updatedAt": "2026-08-27T18:09:58.387Z",
+      "tags": [
+        "NewAPI",
+        "Token",
+        "凭据",
+        "数据安全"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "61c8c1b4",
+      "content": "项目修改必须先读取现有代码并保持最小范围，不覆盖用户已有未提交改动；新增数据库表或字段时同步更新 docs/backend/backend-database.md。",
+      "createdAt": "2026-08-27T18:09:59.089Z",
+      "updatedAt": "2026-08-27T18:09:59.089Z",
+      "tags": [
+        "开发流程",
+        "Git",
+        "数据库",
+        "文档"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "625c37b8",
+      "content": "本项目采用同域部署：Nginx 托管静态前端，/api/ 反向代理到 Go 服务；前端使用相对路径请求 API，后端不依赖 Next.js API 代理。",
+      "createdAt": "2026-08-27T18:06:38.099Z",
+      "updatedAt": "2026-08-27T18:10:28.879Z",
+      "tags": [
+        "deployment",
+        "nginx",
+        "static-frontend",
+        "api"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "dc4b8a01",
+      "content": "本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+      "createdAt": "2026-08-27T17:40:13.169Z",
+      "updatedAt": "2026-08-27T18:10:29.191Z",
+      "tags": [
+        "newapi",
+        "ai-proxy",
+        "models",
+        "security"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "6d001885",
+      "content": "本项目应保留并复用 NewAPI 的 Session/Cookie，只有失效时才使用保存的凭据重新登录，以避免每次请求创建新的 NewAPI Session。",
+      "createdAt": "2026-08-27T18:04:09.601Z",
+      "updatedAt": "2026-08-27T18:10:29.803Z",
+      "tags": [
+        "newapi",
+        "session",
+        "cookie",
+        "authentication"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "beba8bf2",
+      "content": "本项目后端固定使用 Go、Gin、GORM 和 PostgreSQL，handler 只负责 HTTP，service 负责业务逻辑，repository 只负责数据库访问。",
+      "createdAt": "2026-08-27T18:10:30.427Z",
+      "updatedAt": "2026-08-27T18:10:30.427Z",
+      "tags": [
+        "go",
+        "gin",
+        "gorm",
+        "postgresql",
+        "architecture"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "cad2c614",
+      "content": "Infinite Canvas 数据库设计拆分为 users、user_newapi_credentials、user_newapi_tokens、ai_models 和 user_ai_models；用户基础信息与 NewAPI 凭据、Token、模型权限分离管理。",
+      "createdAt": "2026-08-27T18:12:10.190Z",
+      "updatedAt": "2026-08-27T18:12:10.190Z",
+      "tags": [
+        "database",
+        "schema",
+        "newapi"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "76ef0990",
+      "content": "NewAPI Session/Cookie 应在 Infinite Canvas 服务端按用户保存并优先复用，失效后使用加密密码重新登录并覆盖旧 Session；密码失效时设置 reauth_required，要求用户重新输入密码。",
+      "createdAt": "2026-08-27T17:59:41.602Z",
+      "updatedAt": "2026-08-27T18:12:10.824Z",
+      "tags": [
+        "session",
+        "authentication",
+        "newapi"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "ee1411ea",
+      "content": "user_newapi_tokens 保存 NewAPI Token ID、完整 token_key、启用状态和默认 Token 标记；请求前检查 Token 是否启用，token_key、密码和 Session 永不返回浏览器或写入日志。",
+      "createdAt": "2026-08-27T18:04:10.647Z",
+      "updatedAt": "2026-08-27T18:12:11.136Z",
+      "tags": [
+        "tokens",
+        "security",
+        "newapi"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "2c7f81f4",
+      "content": "项目后端使用 Go、Gin、GORM 和 PostgreSQL；接口遵循 { code, data, msg } 响应结构，并按 handler、service、repository、model 分层。",
+      "createdAt": "2026-08-27T18:09:58.744Z",
+      "updatedAt": "2026-08-27T18:12:11.470Z",
+      "tags": [
+        "backend",
+        "go",
+        "postgresql"
+      ],
+      "source": "turn-reflection"
+    },
+    {
+      "id": "ae7f3467",
+      "content": "项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "createdAt": "2026-08-27T17:40:11.922Z",
+      "updatedAt": "2026-08-27T18:12:11.804Z",
+      "tags": [
+        "deployment",
+        "nextjs",
+        "nginx",
+        "routing"
+      ],
+      "source": "turn-reflection"
+    }
+  ],
+  "rootId": "950102058c27799b90aa:0-54",
+  "nodes": {
+    "950102058c27799b90aa:0-1": {
+      "id": "950102058c27799b90aa:0-1",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 0,
+      "end": 1,
+      "summary": "该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。",
+      "memoryId": "4f34e208",
+      "tags": [
+        "架构",
+        "部署",
+        "后端"
+      ]
+    },
+    "950102058c27799b90aa:1-2": {
+      "id": "950102058c27799b90aa:1-2",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 1,
+      "end": 2,
+      "summary": "画布项目以完整 JSON 保存到本地 localforage 或服务端 canvas_projects，图片和媒体通过 storageKey 引用 Blob/对象存储；异步图片、音频和视频任务使用独立数据库表以支持刷新、关闭页面和多设备恢复。",
+      "memoryId": "73c3da2c",
+      "tags": [
+        "画布",
+        "数据持久化",
+        "异步任务",
+        "对象存储"
+      ]
+    },
+    "950102058c27799b90aa:2-3": {
+      "id": "950102058c27799b90aa:2-3",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 2,
+      "end": 3,
+      "summary": "本项目的总体架构说明统一维护在 `docs/architecture.md`，并应从 `docs/index.md` 的开发文档部分提供入口。",
+      "memoryId": "00593f86",
+      "tags": [
+        "文档",
+        "架构",
+        "docs"
+      ]
+    },
+    "950102058c27799b90aa:1-3": {
+      "id": "950102058c27799b90aa:1-3",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 1,
+      "end": 3,
+      "summary": "2 memories: 画布项目以完整 JSON 保存到本地 localforage 或服务端 canvas_projects，图片和媒体通过 storageKey 引用 Blob/对象存储；异步图片、音频和视频任务使用独立数据库表以支持刷新、关闭页面和多设备恢复。 … 本项目的总体架构说明统一维护在 `docs/architecture.md`，并应从 `docs/index.md` 的开发文档部分提供入口。",
+      "children": [
+        "950102058c27799b90aa:1-2",
+        "950102058c27799b90aa:2-3"
+      ]
+    },
+    "950102058c27799b90aa:0-3": {
+      "id": "950102058c27799b90aa:0-3",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 0,
+      "end": 3,
+      "summary": "3 memories: 该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。 … 本项目的总体架构说明统一维护在 `docs/architecture.md`，并应从 `docs/index.md` 的开发文档部分提供入口。",
+      "children": [
+        "950102058c27799b90aa:0-1",
+        "950102058c27799b90aa:1-3"
+      ]
+    },
+    "950102058c27799b90aa:3-4": {
+      "id": "950102058c27799b90aa:3-4",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 3,
+      "end": 4,
+      "summary": "用户要求将重要分析和操作说明整理为项目内的 Markdown 文档，并放入 docs 目录，同时通过 docs/index.md 建立索引入口。",
+      "memoryId": "304f8675",
+      "tags": [
+        "文档",
+        "Markdown",
+        "docs",
+        "索引"
+      ]
+    },
+    "950102058c27799b90aa:4-5": {
+      "id": "950102058c27799b90aa:4-5",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 4,
+      "end": 5,
+      "summary": "项目部署需要支持不使用 Docker 的方式：Go 后端与 Next.js 前端分开运行，生产环境可使用 systemd 管理进程、Nginx 反向代理和 HTTPS。",
+      "memoryId": "1e4c6618",
+      "tags": [
+        "部署",
+        "Go",
+        "Next.js",
+        "systemd",
+        "Nginx"
+      ]
+    },
+    "950102058c27799b90aa:5-6": {
+      "id": "950102058c27799b90aa:5-6",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 5,
+      "end": 6,
+      "summary": "移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+      "memoryId": "9ab2f9db",
+      "tags": [
+        "database",
+        "dependencies",
+        "testing",
+        "documentation"
+      ]
+    },
+    "950102058c27799b90aa:4-6": {
+      "id": "950102058c27799b90aa:4-6",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 4,
+      "end": 6,
+      "summary": "2 memories: 项目部署需要支持不使用 Docker 的方式：Go 后端与 Next.js 前端分开运行，生产环境可使用 systemd 管理进程、Nginx 反向代理和 HTTPS。 … 移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+      "children": [
+        "950102058c27799b90aa:4-5",
+        "950102058c27799b90aa:5-6"
+      ]
+    },
+    "950102058c27799b90aa:3-6": {
+      "id": "950102058c27799b90aa:3-6",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 3,
+      "end": 6,
+      "summary": "3 memories: 用户要求将重要分析和操作说明整理为项目内的 Markdown 文档，并放入 docs 目录，同时通过 docs/index.md 建立索引入口。 … 移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+      "children": [
+        "950102058c27799b90aa:3-4",
+        "950102058c27799b90aa:4-6"
+      ]
+    },
+    "950102058c27799b90aa:0-6": {
+      "id": "950102058c27799b90aa:0-6",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 0,
+      "end": 6,
+      "summary": "6 memories: 该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。 … 移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+      "children": [
+        "950102058c27799b90aa:0-3",
+        "950102058c27799b90aa:3-6"
+      ]
+    },
+    "950102058c27799b90aa:6-7": {
+      "id": "950102058c27799b90aa:6-7",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 6,
+      "end": 7,
+      "summary": "该工作区曾出现 Go 链接器内部 `cmd/internal/goobj` 的 slice bounds panic；后续完整构建失败时，应区分工具链/缓存异常与项目源码或依赖编译错误。",
+      "memoryId": "295846f3",
+      "tags": [
+        "go",
+        "build",
+        "troubleshooting"
+      ]
+    },
+    "950102058c27799b90aa:7-8": {
+      "id": "950102058c27799b90aa:7-8",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 7,
+      "end": 8,
+      "summary": "用户要求的项目改动需先取得明确许可；得到“允许修改”后方可编辑，并必须保留工作区已有的用户改动。",
+      "memoryId": "15846c1c",
+      "tags": [
+        "workflow",
+        "git",
+        "safety"
+      ]
+    },
+    "950102058c27799b90aa:8-9": {
+      "id": "950102058c27799b90aa:8-9",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 8,
+      "end": 9,
+      "summary": "将数据库多驱动实现改为单一 PostgreSQL 驱动时，应同步更新默认配置、相关测试、部署/架构文档及待测试记录。",
+      "memoryId": "a9f0071c",
+      "tags": [
+        "database",
+        "documentation",
+        "testing",
+        "conventions"
+      ]
+    },
+    "950102058c27799b90aa:7-9": {
+      "id": "950102058c27799b90aa:7-9",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 7,
+      "end": 9,
+      "summary": "2 memories: 用户要求的项目改动需先取得明确许可；得到“允许修改”后方可编辑，并必须保留工作区已有的用户改动。 … 将数据库多驱动实现改为单一 PostgreSQL 驱动时，应同步更新默认配置、相关测试、部署/架构文档及待测试记录。",
+      "children": [
+        "950102058c27799b90aa:7-8",
+        "950102058c27799b90aa:8-9"
+      ]
+    },
+    "950102058c27799b90aa:6-9": {
+      "id": "950102058c27799b90aa:6-9",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 6,
+      "end": 9,
+      "summary": "3 memories: 该工作区曾出现 Go 链接器内部 `cmd/internal/goobj` 的 slice bounds panic；后续完整构建失败时，应区分工具链/缓存异常与项目源码或依赖编译错误。 … 将数据库多驱动实现改为单一 PostgreSQL 驱动时，应同步更新默认配置、相关测试、部署/架构文档及待测试记录。",
+      "children": [
+        "950102058c27799b90aa:6-7",
+        "950102058c27799b90aa:7-9"
+      ]
+    },
+    "950102058c27799b90aa:9-10": {
+      "id": "950102058c27799b90aa:9-10",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 9,
+      "end": 10,
+      "summary": "该环境曾在完整 Go 构建的链接阶段触发 Go 工具链内部 panic（cmd/internal/goobj）；排障时可先执行 go clean -cache，再用 go build -a 重试。",
+      "memoryId": "6b55889d",
+      "tags": [
+        "go",
+        "build",
+        "troubleshooting"
+      ]
+    },
+    "950102058c27799b90aa:10-11": {
+      "id": "950102058c27799b90aa:10-11",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 10,
+      "end": 11,
+      "summary": "画布编辑页使用静态查询参数路由 `/canvas?id=项目ID`，不使用运行时动态路由 `/canvas/[id]`；前端 API 请求保持相对 `/api/` 路径，因此后端无需额外增加 CORS 适配。",
+      "memoryId": "82d0c224",
+      "tags": [
+        "Next.js",
+        "canvas",
+        "路由",
+        "API"
+      ]
+    },
+    "950102058c27799b90aa:9-11": {
+      "id": "950102058c27799b90aa:9-11",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 9,
+      "end": 11,
+      "summary": "2 memories: 该环境曾在完整 Go 构建的链接阶段触发 Go 工具链内部 panic（cmd/internal/goobj）；排障时可先执行 go clean -cache，再用 go build -a 重试。 … 画布编辑页使用静态查询参数路由 `/canvas?id=项目ID`，不使用运行时动态路由 `/canvas/[id]`；前端 API 请求保持相对 `/api/` 路径，因此后端无需额外增加 CORS 适配。",
+      "children": [
+        "950102058c27799b90aa:9-10",
+        "950102058c27799b90aa:10-11"
+      ]
+    },
+    "950102058c27799b90aa:11-12": {
+      "id": "950102058c27799b90aa:11-12",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 11,
+      "end": 12,
+      "summary": "项目 Git `origin` 远程地址使用 SSH：`git@github.com:CrowWizard/infinite-canvas.git`。",
+      "memoryId": "4633de27",
+      "tags": [
+        "git",
+        "remote",
+        "github"
+      ]
+    },
+    "950102058c27799b90aa:12-13": {
+      "id": "950102058c27799b90aa:12-13",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 12,
+      "end": 13,
+      "summary": "前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+      "memoryId": "c48789bf",
+      "tags": [
+        "frontend",
+        "pnpm",
+        "build",
+        "dependencies"
+      ]
+    },
+    "950102058c27799b90aa:11-13": {
+      "id": "950102058c27799b90aa:11-13",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 11,
+      "end": 13,
+      "summary": "2 memories: 项目 Git `origin` 远程地址使用 SSH：`git@github.com:CrowWizard/infinite-canvas.git`。 … 前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+      "children": [
+        "950102058c27799b90aa:11-12",
+        "950102058c27799b90aa:12-13"
+      ]
+    },
+    "950102058c27799b90aa:9-13": {
+      "id": "950102058c27799b90aa:9-13",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 9,
+      "end": 13,
+      "summary": "4 memories: 该环境曾在完整 Go 构建的链接阶段触发 Go 工具链内部 panic（cmd/internal/goobj）；排障时可先执行 go clean -cache，再用 go build -a 重试。 … 前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+      "children": [
+        "950102058c27799b90aa:9-11",
+        "950102058c27799b90aa:11-13"
+      ]
+    },
+    "950102058c27799b90aa:6-13": {
+      "id": "950102058c27799b90aa:6-13",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 6,
+      "end": 13,
+      "summary": "7 memories: 该工作区曾出现 Go 链接器内部 `cmd/internal/goobj` 的 slice bounds panic；后续完整构建失败时，应区分工具链/缓存异常与项目源码或依赖编译错误。 … 前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+      "children": [
+        "950102058c27799b90aa:6-9",
+        "950102058c27799b90aa:9-13"
+      ]
+    },
+    "950102058c27799b90aa:0-13": {
+      "id": "950102058c27799b90aa:0-13",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 0,
+      "end": 13,
+      "summary": "13 memories: 该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。 … 前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+      "children": [
+        "950102058c27799b90aa:0-6",
+        "950102058c27799b90aa:6-13"
+      ]
+    },
+    "950102058c27799b90aa:13-14": {
+      "id": "950102058c27799b90aa:13-14",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 13,
+      "end": 14,
+      "summary": "本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端。",
+      "memoryId": "46c56aa8",
+      "tags": [
+        "deployment",
+        "nginx",
+        "static-export",
+        "api"
+      ]
+    },
+    "950102058c27799b90aa:14-15": {
+      "id": "950102058c27799b90aa:14-15",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 14,
+      "end": 15,
+      "summary": "前端已改为 Next.js 静态导出（`output: \"export\"`），画布编辑地址统一使用 `/canvas?id=项目ID`，不能再新增依赖运行时参数的动态路由。",
+      "memoryId": "bb7e4e3a",
+      "tags": [
+        "frontend",
+        "nextjs",
+        "routing",
+        "static-export"
+      ]
+    },
+    "950102058c27799b90aa:15-16": {
+      "id": "950102058c27799b90aa:15-16",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 15,
+      "end": 16,
+      "summary": "后端数据库已确定为 PostgreSQL 专用，默认 `STORAGE_DRIVER=postgres`；不要恢复 SQLite 或 MySQL 兼容分支，除非用户明确要求。",
+      "memoryId": "8715b014",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ]
+    },
+    "950102058c27799b90aa:14-16": {
+      "id": "950102058c27799b90aa:14-16",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 14,
+      "end": 16,
+      "summary": "2 memories: 前端已改为 Next.js 静态导出（`output: \"export\"`），画布编辑地址统一使用 `/canvas?id=项目ID`，不能再新增依赖运行时参数的动态路由。 … 后端数据库已确定为 PostgreSQL 专用，默认 `STORAGE_DRIVER=postgres`；不要恢复 SQLite 或 MySQL 兼容分支，除非用户明确要求。",
+      "children": [
+        "950102058c27799b90aa:14-15",
+        "950102058c27799b90aa:15-16"
+      ]
+    },
+    "950102058c27799b90aa:13-16": {
+      "id": "950102058c27799b90aa:13-16",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 13,
+      "end": 16,
+      "summary": "3 memories: 本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端。 … 后端数据库已确定为 PostgreSQL 专用，默认 `STORAGE_DRIVER=postgres`；不要恢复 SQLite 或 MySQL 兼容分支，除非用户明确要求。",
+      "children": [
+        "950102058c27799b90aa:13-14",
+        "950102058c27799b90aa:14-16"
+      ]
+    },
+    "950102058c27799b90aa:16-17": {
+      "id": "950102058c27799b90aa:16-17",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 16,
+      "end": 17,
+      "summary": "当前 Go API 认证、设置和提示词路由使用 `/api/auth/*`、`/api/settings`、`/api/prompts`；不要将这些路径误改为 `/api/v1/*`。`/api/v1/*` 仅用于部分 AI、用户配置和画布任务接口。",
+      "memoryId": "2f9b3bd3",
+      "tags": [
+        "backend",
+        "api-contract",
+        "routing"
+      ]
+    },
+    "950102058c27799b90aa:17-18": {
+      "id": "950102058c27799b90aa:17-18",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 17,
+      "end": 18,
+      "summary": "画布入口的路由判断必须与列表页 Hooks 分离：`CanvasRoute` 只读取查询参数并渲染独立的编辑器或列表组件，避免条件返回改变同一组件的 Hooks 数量。",
+      "memoryId": "2e48fbcf",
+      "tags": [
+        "frontend",
+        "react",
+        "hooks",
+        "canvas"
+      ]
+    },
+    "950102058c27799b90aa:16-18": {
+      "id": "950102058c27799b90aa:16-18",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 16,
+      "end": 18,
+      "summary": "2 memories: 当前 Go API 认证、设置和提示词路由使用 `/api/auth/*`、`/api/settings`、`/api/prompts`；不要将这些路径误改为 `/api/v1/*`。`/api/v1/*` 仅用于部分 AI、用户配置和画布任务接口。 … 画布入口的路由判断必须与列表页 Hooks 分离：`CanvasRoute` 只读取查询参数并渲染独立的编辑器或列表组件，避免条件返回改变同一组件的 Hooks 数量。",
+      "children": [
+        "950102058c27799b90aa:16-17",
+        "950102058c27799b90aa:17-18"
+      ]
+    },
+    "950102058c27799b90aa:18-19": {
+      "id": "950102058c27799b90aa:18-19",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 18,
+      "end": 19,
+      "summary": "修改前必须先获得用户明确授权；工作区已有未提交修改时不得回滚或覆盖，只在必要范围内追加修改。",
+      "memoryId": "c892665d",
+      "tags": [
+        "workflow",
+        "git",
+        "safety"
+      ]
+    },
+    "950102058c27799b90aa:19-20": {
+      "id": "950102058c27799b90aa:19-20",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 19,
+      "end": 20,
+      "summary": "Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do not revert or overwrite existing workspace changes.",
+      "memoryId": "0f4a6278",
+      "tags": [
+        "workflow",
+        "safety",
+        "git"
+      ]
+    },
+    "950102058c27799b90aa:18-20": {
+      "id": "950102058c27799b90aa:18-20",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 18,
+      "end": 20,
+      "summary": "2 memories: 修改前必须先获得用户明确授权；工作区已有未提交修改时不得回滚或覆盖，只在必要范围内追加修改。 … Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do not revert or overwrite existing workspace changes.",
+      "children": [
+        "950102058c27799b90aa:18-19",
+        "950102058c27799b90aa:19-20"
+      ]
+    },
+    "950102058c27799b90aa:16-20": {
+      "id": "950102058c27799b90aa:16-20",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 16,
+      "end": 20,
+      "summary": "4 memories: 当前 Go API 认证、设置和提示词路由使用 `/api/auth/*`、`/api/settings`、`/api/prompts`；不要将这些路径误改为 `/api/v1/*`。`/api/v1/*` 仅用于部分 AI、用户配置和画布任务接口。 … Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do not revert or overwrite existing workspace changes.",
+      "children": [
+        "950102058c27799b90aa:16-18",
+        "950102058c27799b90aa:18-20"
+      ]
+    },
+    "950102058c27799b90aa:13-20": {
+      "id": "950102058c27799b90aa:13-20",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 13,
+      "end": 20,
+      "summary": "7 memories: 本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端。 … Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do not revert or overwrite existing workspace changes.",
+      "children": [
+        "950102058c27799b90aa:13-16",
+        "950102058c27799b90aa:16-20"
+      ]
+    },
+    "950102058c27799b90aa:20-21": {
+      "id": "950102058c27799b90aa:20-21",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 20,
+      "end": 21,
+      "summary": "The deployment architecture uses a statically exported Next.js frontend served by Nginx under the same domain, with only `/api/` reverse-proxied to the Go service; no Next.js runtime/API proxy is deployed.",
+      "memoryId": "4abc7988",
+      "tags": [
+        "architecture",
+        "deployment",
+        "nginx",
+        "nextjs"
+      ]
+    },
+    "950102058c27799b90aa:21-22": {
+      "id": "950102058c27799b90aa:21-22",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 21,
+      "end": 22,
+      "summary": "Canvas project routes must use the static-export-compatible query form `/canvas?id=<projectId>` rather than dynamic `/canvas/[id]` routes.",
+      "memoryId": "0f63c12d",
+      "tags": [
+        "frontend",
+        "routing",
+        "static-export"
+      ]
+    },
+    "950102058c27799b90aa:22-23": {
+      "id": "950102058c27799b90aa:22-23",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 22,
+      "end": 23,
+      "summary": "The backend is PostgreSQL-only; SQLite and MySQL are intentionally removed from configuration, drivers, and deployment assumptions.",
+      "memoryId": "3e3ebf00",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ]
+    },
+    "950102058c27799b90aa:21-23": {
+      "id": "950102058c27799b90aa:21-23",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 21,
+      "end": 23,
+      "summary": "2 memories: Canvas project routes must use the static-export-compatible query form `/canvas?id=<projectId>` rather than dynamic `/canvas/[id]` routes. … The backend is PostgreSQL-only; SQLite and MySQL are intentionally removed from configuration, drivers, and deployment assumptions.",
+      "children": [
+        "950102058c27799b90aa:21-22",
+        "950102058c27799b90aa:22-23"
+      ]
+    },
+    "950102058c27799b90aa:20-23": {
+      "id": "950102058c27799b90aa:20-23",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 20,
+      "end": 23,
+      "summary": "3 memories: The deployment architecture uses a statically exported Next.js frontend served by Nginx under the same domain, with only `/api/` reverse-proxied to the Go service; no Next.js runtime/API proxy is deployed. … The backend is PostgreSQL-only; SQLite and MySQL are intentionally removed from configuration, driv…",
+      "children": [
+        "950102058c27799b90aa:20-21",
+        "950102058c27799b90aa:21-23"
+      ]
+    },
+    "950102058c27799b90aa:23-24": {
+      "id": "950102058c27799b90aa:23-24",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 23,
+      "end": 24,
+      "summary": "Future AI architecture should use NewAPI as the sole upstream: Infinite Canvas proxies login and all model calls server-side, has no registration endpoint, and disallows local/browser-direct model providers.",
+      "memoryId": "ae975e71",
+      "tags": [
+        "architecture",
+        "ai",
+        "newapi",
+        "security"
+      ]
+    },
+    "950102058c27799b90aa:24-25": {
+      "id": "950102058c27799b90aa:24-25",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 24,
+      "end": 25,
+      "summary": "For NewAPI users, persist the NewAPI user ID and token ID plus an encrypted NewAPI token key on the server; never expose model base URLs or API keys to the browser, and do not store user passwords.",
+      "memoryId": "8a4b7c30",
+      "tags": [
+        "newapi",
+        "credentials",
+        "security",
+        "authentication"
+      ]
+    },
+    "950102058c27799b90aa:23-25": {
+      "id": "950102058c27799b90aa:23-25",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 23,
+      "end": 25,
+      "summary": "2 memories: Future AI architecture should use NewAPI as the sole upstream: Infinite Canvas proxies login and all model calls server-side, has no registration endpoint, and disallows local/browser-direct model providers. … For NewAPI users, persist the NewAPI user ID and token ID plus an encrypted NewAPI token key on t…",
+      "children": [
+        "950102058c27799b90aa:23-24",
+        "950102058c27799b90aa:24-25"
+      ]
+    },
+    "950102058c27799b90aa:25-26": {
+      "id": "950102058c27799b90aa:25-26",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 25,
+      "end": 26,
+      "summary": "The image, video, text, and audio model lists must be returned and validated by the Infinite Canvas backend based on NewAPI permissions; frontend model-name heuristics and user-managed local channels should be removed.",
+      "memoryId": "34f45cad",
+      "tags": [
+        "ai",
+        "models",
+        "backend",
+        "frontend"
+      ]
+    },
+    "950102058c27799b90aa:26-27": {
+      "id": "950102058c27799b90aa:26-27",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 26,
+      "end": 27,
+      "summary": "画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "memoryId": "72f51012",
+      "tags": [
+        "nextjs",
+        "canvas",
+        "routing"
+      ]
+    },
+    "950102058c27799b90aa:25-27": {
+      "id": "950102058c27799b90aa:25-27",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 25,
+      "end": 27,
+      "summary": "2 memories: The image, video, text, and audio model lists must be returned and validated by the Infinite Canvas backend based on NewAPI permissions; frontend model-name heuristics and user-managed local channels should be removed. … 画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "children": [
+        "950102058c27799b90aa:25-26",
+        "950102058c27799b90aa:26-27"
+      ]
+    },
+    "950102058c27799b90aa:23-27": {
+      "id": "950102058c27799b90aa:23-27",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 23,
+      "end": 27,
+      "summary": "4 memories: Future AI architecture should use NewAPI as the sole upstream: Infinite Canvas proxies login and all model calls server-side, has no registration endpoint, and disallows local/browser-direct model providers. … 画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "children": [
+        "950102058c27799b90aa:23-25",
+        "950102058c27799b90aa:25-27"
+      ]
+    },
+    "950102058c27799b90aa:20-27": {
+      "id": "950102058c27799b90aa:20-27",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 20,
+      "end": 27,
+      "summary": "7 memories: The deployment architecture uses a statically exported Next.js frontend served by Nginx under the same domain, with only `/api/` reverse-proxied to the Go service; no Next.js runtime/API proxy is deployed. … 画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "children": [
+        "950102058c27799b90aa:20-23",
+        "950102058c27799b90aa:23-27"
+      ]
+    },
+    "950102058c27799b90aa:13-27": {
+      "id": "950102058c27799b90aa:13-27",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 13,
+      "end": 27,
+      "summary": "14 memories: 本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端。 … 画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "children": [
+        "950102058c27799b90aa:13-20",
+        "950102058c27799b90aa:20-27"
+      ]
+    },
+    "950102058c27799b90aa:0-27": {
+      "id": "950102058c27799b90aa:0-27",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 0,
+      "end": 27,
+      "summary": "27 memories: 该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。 … 画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "children": [
+        "950102058c27799b90aa:0-13",
+        "950102058c27799b90aa:13-27"
+      ]
+    },
+    "950102058c27799b90aa:27-28": {
+      "id": "950102058c27799b90aa:27-28",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 27,
+      "end": 28,
+      "summary": "四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。",
+      "memoryId": "a2fc9c1c",
+      "tags": [
+        "models",
+        "permissions",
+        "frontend-backend"
+      ]
+    },
+    "950102058c27799b90aa:28-29": {
+      "id": "950102058c27799b90aa:28-29",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 28,
+      "end": 29,
+      "summary": "项目后端使用 Go、Gin、GORM 和 PostgreSQL，数据库通过 GORM AutoMigrate 管理；用户 NewAPI Token 应独立建表，模型定义与用户模型权限分开建模。",
+      "memoryId": "72fcde74",
+      "tags": [
+        "go",
+        "gorm",
+        "postgresql",
+        "database"
+      ]
+    },
+    "950102058c27799b90aa:29-30": {
+      "id": "950102058c27799b90aa:29-30",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 29,
+      "end": 30,
+      "summary": "项目计划禁止本地模型和浏览器直连模型服务，所有模型请求、模型列表和用户配置统一经过 Go 服务端，模型服务地址与凭据不返回浏览器。",
+      "memoryId": "8127d22f",
+      "tags": [
+        "ai",
+        "security",
+        "backend-proxy",
+        "no-local-model"
+      ]
+    },
+    "950102058c27799b90aa:28-30": {
+      "id": "950102058c27799b90aa:28-30",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 28,
+      "end": 30,
+      "summary": "2 memories: 项目后端使用 Go、Gin、GORM 和 PostgreSQL，数据库通过 GORM AutoMigrate 管理；用户 NewAPI Token 应独立建表，模型定义与用户模型权限分开建模。 … 项目计划禁止本地模型和浏览器直连模型服务，所有模型请求、模型列表和用户配置统一经过 Go 服务端，模型服务地址与凭据不返回浏览器。",
+      "children": [
+        "950102058c27799b90aa:28-29",
+        "950102058c27799b90aa:29-30"
+      ]
+    },
+    "950102058c27799b90aa:27-30": {
+      "id": "950102058c27799b90aa:27-30",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 27,
+      "end": 30,
+      "summary": "3 memories: 四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。 … 项目计划禁止本地模型和浏览器直连模型服务，所有模型请求、模型列表和用户配置统一经过 Go 服务端，模型服务地址与凭据不返回浏览器。",
+      "children": [
+        "950102058c27799b90aa:27-28",
+        "950102058c27799b90aa:28-30"
+      ]
+    },
+    "950102058c27799b90aa:30-31": {
+      "id": "950102058c27799b90aa:30-31",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 30,
+      "end": 31,
+      "summary": "Infinite Canvas 的 NewAPI Token 数据应独立建表，至少包含 new_api_user_id、new_api_token_id、token_key、token_status 和 is_default；token_status 用于阻止禁用 Token 发起模型请求。",
+      "memoryId": "84585c20",
+      "tags": [
+        "database",
+        "newapi",
+        "token",
+        "token-status"
+      ]
+    },
+    "950102058c27799b90aa:31-32": {
+      "id": "950102058c27799b90aa:31-32",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 31,
+      "end": 32,
+      "summary": "按用户决定，NewAPI 的 token_key 在 Infinite Canvas 服务端按明文保存，但必须使用 json:\"-\"，禁止返回前端、写入日志或出现在错误信息中；用户密码和 Session 虽需保留，也应与 token_key 分开管理。",
+      "memoryId": "abc07b5e",
+      "tags": [
+        "security",
+        "database",
+        "newapi",
+        "credentials"
+      ]
+    },
+    "950102058c27799b90aa:32-33": {
+      "id": "950102058c27799b90aa:32-33",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 32,
+      "end": 33,
+      "summary": "涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+      "memoryId": "43ab5343",
+      "tags": [
+        "security",
+        "credentials",
+        "newapi"
+      ]
+    },
+    "950102058c27799b90aa:31-33": {
+      "id": "950102058c27799b90aa:31-33",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 31,
+      "end": 33,
+      "summary": "2 memories: 按用户决定，NewAPI 的 token_key 在 Infinite Canvas 服务端按明文保存，但必须使用 json:\"-\"，禁止返回前端、写入日志或出现在错误信息中；用户密码和 Session 虽需保留，也应与 token_key 分开管理。 … 涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+      "children": [
+        "950102058c27799b90aa:31-32",
+        "950102058c27799b90aa:32-33"
+      ]
+    },
+    "950102058c27799b90aa:30-33": {
+      "id": "950102058c27799b90aa:30-33",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 30,
+      "end": 33,
+      "summary": "3 memories: Infinite Canvas 的 NewAPI Token 数据应独立建表，至少包含 new_api_user_id、new_api_token_id、token_key、token_status 和 is_default；token_status 用于阻止禁用 Token 发起模型请求。 … 涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+      "children": [
+        "950102058c27799b90aa:30-31",
+        "950102058c27799b90aa:31-33"
+      ]
+    },
+    "950102058c27799b90aa:27-33": {
+      "id": "950102058c27799b90aa:27-33",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 27,
+      "end": 33,
+      "summary": "6 memories: 四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。 … 涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+      "children": [
+        "950102058c27799b90aa:27-30",
+        "950102058c27799b90aa:30-33"
+      ]
+    },
+    "950102058c27799b90aa:33-34": {
+      "id": "950102058c27799b90aa:33-34",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 33,
+      "end": 34,
+      "summary": "项目使用 PostgreSQL 作为唯一数据库，后端采用 Go、Gin 和 GORM；不保留 SQLite/MySQL 兼容分支。",
+      "memoryId": "7a18b82b",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ]
+    },
+    "950102058c27799b90aa:34-35": {
+      "id": "950102058c27799b90aa:34-35",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 34,
+      "end": 35,
+      "summary": "项目采用 Next.js App Router 静态导出，画布项目使用 /canvas?id=项目ID 查询参数，不使用运行时动态路由 /canvas/[id]。",
+      "memoryId": "2a2fa6a5",
+      "tags": [
+        "frontend",
+        "nextjs",
+        "static-export",
+        "canvas"
+      ]
+    },
+    "950102058c27799b90aa:35-36": {
+      "id": "950102058c27799b90aa:35-36",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 35,
+      "end": 36,
+      "summary": "修改代码前必须先读取相关文件并获得用户明确许可；已有工作区修改不得回滚或覆盖，只能在必要范围内追加改动。",
+      "memoryId": "4cebf065",
+      "tags": [
+        "workflow",
+        "git",
+        "editing"
+      ]
+    },
+    "950102058c27799b90aa:34-36": {
+      "id": "950102058c27799b90aa:34-36",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 34,
+      "end": 36,
+      "summary": "2 memories: 项目采用 Next.js App Router 静态导出，画布项目使用 /canvas?id=项目ID 查询参数，不使用运行时动态路由 /canvas/[id]。 … 修改代码前必须先读取相关文件并获得用户明确许可；已有工作区修改不得回滚或覆盖，只能在必要范围内追加改动。",
+      "children": [
+        "950102058c27799b90aa:34-35",
+        "950102058c27799b90aa:35-36"
+      ]
+    },
+    "950102058c27799b90aa:33-36": {
+      "id": "950102058c27799b90aa:33-36",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 33,
+      "end": 36,
+      "summary": "3 memories: 项目使用 PostgreSQL 作为唯一数据库，后端采用 Go、Gin 和 GORM；不保留 SQLite/MySQL 兼容分支。 … 修改代码前必须先读取相关文件并获得用户明确许可；已有工作区修改不得回滚或覆盖，只能在必要范围内追加改动。",
+      "children": [
+        "950102058c27799b90aa:33-34",
+        "950102058c27799b90aa:34-36"
+      ]
+    },
+    "950102058c27799b90aa:36-37": {
+      "id": "950102058c27799b90aa:36-37",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 36,
+      "end": 37,
+      "summary": "用户希望实现保持简单直接，沿用现有 Go/Gin/GORM、Next.js/React/TypeScript 和项目目录边界，避免无关重构与过度抽象。",
+      "memoryId": "eef14f8c",
+      "tags": [
+        "coding-style",
+        "architecture",
+        "maintainability"
+      ]
+    },
+    "950102058c27799b90aa:37-38": {
+      "id": "950102058c27799b90aa:37-38",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 37,
+      "end": 38,
+      "summary": "项目约定每次代码修改后不强制执行语法检查、构建或测试，由用户自行验证；但需要关注实际环境中依赖完整性问题可能导致前端构建失败。",
+      "memoryId": "de7c315c",
+      "tags": [
+        "verification",
+        "frontend",
+        "dependencies"
+      ]
+    },
+    "950102058c27799b90aa:36-38": {
+      "id": "950102058c27799b90aa:36-38",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 36,
+      "end": 38,
+      "summary": "2 memories: 用户希望实现保持简单直接，沿用现有 Go/Gin/GORM、Next.js/React/TypeScript 和项目目录边界，避免无关重构与过度抽象。 … 项目约定每次代码修改后不强制执行语法检查、构建或测试，由用户自行验证；但需要关注实际环境中依赖完整性问题可能导致前端构建失败。",
+      "children": [
+        "950102058c27799b90aa:36-37",
+        "950102058c27799b90aa:37-38"
+      ]
+    },
+    "950102058c27799b90aa:38-39": {
+      "id": "950102058c27799b90aa:38-39",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 38,
+      "end": 39,
+      "summary": "NewAPI 的完整 token_key 按其现有方式保存，Infinite Canvas 需要同步 token ID、完整 token_key 及 token 是否被禁用；token_key、密码和 Session/Cookie 永不返回前端或写入日志。",
+      "memoryId": "24ed5f55",
+      "tags": [
+        "newapi",
+        "token",
+        "security",
+        "database"
+      ]
+    },
+    "950102058c27799b90aa:39-40": {
+      "id": "950102058c27799b90aa:39-40",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 39,
+      "end": 40,
+      "summary": "前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+      "memoryId": "d65e952c",
+      "tags": [
+        "deployment",
+        "nginx",
+        "api",
+        "static-export"
+      ]
+    },
+    "950102058c27799b90aa:38-40": {
+      "id": "950102058c27799b90aa:38-40",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 38,
+      "end": 40,
+      "summary": "2 memories: NewAPI 的完整 token_key 按其现有方式保存，Infinite Canvas 需要同步 token ID、完整 token_key 及 token 是否被禁用；token_key、密码和 Session/Cookie 永不返回前端或写入日志。 … 前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+      "children": [
+        "950102058c27799b90aa:38-39",
+        "950102058c27799b90aa:39-40"
+      ]
+    },
+    "950102058c27799b90aa:36-40": {
+      "id": "950102058c27799b90aa:36-40",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 36,
+      "end": 40,
+      "summary": "4 memories: 用户希望实现保持简单直接，沿用现有 Go/Gin/GORM、Next.js/React/TypeScript 和项目目录边界，避免无关重构与过度抽象。 … 前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+      "children": [
+        "950102058c27799b90aa:36-38",
+        "950102058c27799b90aa:38-40"
+      ]
+    },
+    "950102058c27799b90aa:33-40": {
+      "id": "950102058c27799b90aa:33-40",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 33,
+      "end": 40,
+      "summary": "7 memories: 项目使用 PostgreSQL 作为唯一数据库，后端采用 Go、Gin 和 GORM；不保留 SQLite/MySQL 兼容分支。 … 前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+      "children": [
+        "950102058c27799b90aa:33-36",
+        "950102058c27799b90aa:36-40"
+      ]
+    },
+    "950102058c27799b90aa:27-40": {
+      "id": "950102058c27799b90aa:27-40",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 27,
+      "end": 40,
+      "summary": "13 memories: 四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。 … 前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+      "children": [
+        "950102058c27799b90aa:27-33",
+        "950102058c27799b90aa:33-40"
+      ]
+    },
+    "950102058c27799b90aa:40-41": {
+      "id": "950102058c27799b90aa:40-41",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 40,
+      "end": 41,
+      "summary": "画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。",
+      "memoryId": "ca71cf88",
+      "tags": [
+        "nextjs",
+        "static-export",
+        "canvas",
+        "routing"
+      ]
+    },
+    "950102058c27799b90aa:41-42": {
+      "id": "950102058c27799b90aa:41-42",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 41,
+      "end": 42,
+      "summary": "本项目的模型统一由 Infinite Canvas 服务端通过 NewAPI 中转，禁止浏览器直连本地模型或保存本地 API Key、Base URL 和模型通道配置；四类模型列表由本项目服务端返回。",
+      "memoryId": "a1ba7401",
+      "tags": [
+        "NewAPI",
+        "AI代理",
+        "模型",
+        "安全"
+      ]
+    },
+    "950102058c27799b90aa:42-43": {
+      "id": "950102058c27799b90aa:42-43",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 42,
+      "end": 43,
+      "summary": "NewAPI 登录接口接收原始明文密码，但 NewAPI 数据库保存的是单向密码哈希，不能还原；本项目若需在 NewAPI Session 失效后自动重登录，必须在服务端以可逆加密方式保存原始密码，不能保存 NewAPI 哈希代替。",
+      "memoryId": "30b62a9c",
+      "tags": [
+        "NewAPI",
+        "认证",
+        "密码",
+        "安全"
+      ]
+    },
+    "950102058c27799b90aa:41-43": {
+      "id": "950102058c27799b90aa:41-43",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 41,
+      "end": 43,
+      "summary": "2 memories: 本项目的模型统一由 Infinite Canvas 服务端通过 NewAPI 中转，禁止浏览器直连本地模型或保存本地 API Key、Base URL 和模型通道配置；四类模型列表由本项目服务端返回。 … NewAPI 登录接口接收原始明文密码，但 NewAPI 数据库保存的是单向密码哈希，不能还原；本项目若需在 NewAPI Session 失效后自动重登录，必须在服务端以可逆加密方式保存原始密码，不能保存 NewAPI 哈希代替。",
+      "children": [
+        "950102058c27799b90aa:41-42",
+        "950102058c27799b90aa:42-43"
+      ]
+    },
+    "950102058c27799b90aa:40-43": {
+      "id": "950102058c27799b90aa:40-43",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 40,
+      "end": 43,
+      "summary": "3 memories: 画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。 … NewAPI 登录接口接收原始明文密码，但 NewAPI 数据库保存的是单向密码哈希，不能还原；本项目若需在 NewAPI Session 失效后自动重登录，必须在服务端以可逆加密方式保存原始密码，不能保存 NewAPI 哈希代替。",
+      "children": [
+        "950102058c27799b90aa:40-41",
+        "950102058c27799b90aa:41-43"
+      ]
+    },
+    "950102058c27799b90aa:43-44": {
+      "id": "950102058c27799b90aa:43-44",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 43,
+      "end": 44,
+      "summary": "本项目需要保存 NewAPI 用户 ID、Token ID、完整 token_key 及 token 启用状态；token_key 按当前方案保存为可直接用于模型请求的完整 Key，并且密码、Cookie 和 token_key 均不得返回前端或写入日志。",
+      "memoryId": "b77839bf",
+      "tags": [
+        "NewAPI",
+        "Token",
+        "凭据",
+        "数据安全"
+      ]
+    },
+    "950102058c27799b90aa:44-45": {
+      "id": "950102058c27799b90aa:44-45",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 44,
+      "end": 45,
+      "summary": "项目修改必须先读取现有代码并保持最小范围，不覆盖用户已有未提交改动；新增数据库表或字段时同步更新 docs/backend/backend-database.md。",
+      "memoryId": "61c8c1b4",
+      "tags": [
+        "开发流程",
+        "Git",
+        "数据库",
+        "文档"
+      ]
+    },
+    "950102058c27799b90aa:43-45": {
+      "id": "950102058c27799b90aa:43-45",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 43,
+      "end": 45,
+      "summary": "2 memories: 本项目需要保存 NewAPI 用户 ID、Token ID、完整 token_key 及 token 启用状态；token_key 按当前方案保存为可直接用于模型请求的完整 Key，并且密码、Cookie 和 token_key 均不得返回前端或写入日志。 … 项目修改必须先读取现有代码并保持最小范围，不覆盖用户已有未提交改动；新增数据库表或字段时同步更新 docs/backend/backend-database.md。",
+      "children": [
+        "950102058c27799b90aa:43-44",
+        "950102058c27799b90aa:44-45"
+      ]
+    },
+    "950102058c27799b90aa:45-46": {
+      "id": "950102058c27799b90aa:45-46",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 45,
+      "end": 46,
+      "summary": "本项目采用同域部署：Nginx 托管静态前端，/api/ 反向代理到 Go 服务；前端使用相对路径请求 API，后端不依赖 Next.js API 代理。",
+      "memoryId": "625c37b8",
+      "tags": [
+        "deployment",
+        "nginx",
+        "static-frontend",
+        "api"
+      ]
+    },
+    "950102058c27799b90aa:46-47": {
+      "id": "950102058c27799b90aa:46-47",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 46,
+      "end": 47,
+      "summary": "本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+      "memoryId": "dc4b8a01",
+      "tags": [
+        "newapi",
+        "ai-proxy",
+        "models",
+        "security"
+      ]
+    },
+    "950102058c27799b90aa:45-47": {
+      "id": "950102058c27799b90aa:45-47",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 45,
+      "end": 47,
+      "summary": "2 memories: 本项目采用同域部署：Nginx 托管静态前端，/api/ 反向代理到 Go 服务；前端使用相对路径请求 API，后端不依赖 Next.js API 代理。 … 本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+      "children": [
+        "950102058c27799b90aa:45-46",
+        "950102058c27799b90aa:46-47"
+      ]
+    },
+    "950102058c27799b90aa:43-47": {
+      "id": "950102058c27799b90aa:43-47",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 43,
+      "end": 47,
+      "summary": "4 memories: 本项目需要保存 NewAPI 用户 ID、Token ID、完整 token_key 及 token 启用状态；token_key 按当前方案保存为可直接用于模型请求的完整 Key，并且密码、Cookie 和 token_key 均不得返回前端或写入日志。 … 本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+      "children": [
+        "950102058c27799b90aa:43-45",
+        "950102058c27799b90aa:45-47"
+      ]
+    },
+    "950102058c27799b90aa:40-47": {
+      "id": "950102058c27799b90aa:40-47",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 40,
+      "end": 47,
+      "summary": "7 memories: 画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。 … 本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+      "children": [
+        "950102058c27799b90aa:40-43",
+        "950102058c27799b90aa:43-47"
+      ]
+    },
+    "950102058c27799b90aa:47-48": {
+      "id": "950102058c27799b90aa:47-48",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 47,
+      "end": 48,
+      "summary": "本项目应保留并复用 NewAPI 的 Session/Cookie，只有失效时才使用保存的凭据重新登录，以避免每次请求创建新的 NewAPI Session。",
+      "memoryId": "6d001885",
+      "tags": [
+        "newapi",
+        "session",
+        "cookie",
+        "authentication"
+      ]
+    },
+    "950102058c27799b90aa:48-49": {
+      "id": "950102058c27799b90aa:48-49",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 48,
+      "end": 49,
+      "summary": "本项目后端固定使用 Go、Gin、GORM 和 PostgreSQL，handler 只负责 HTTP，service 负责业务逻辑，repository 只负责数据库访问。",
+      "memoryId": "beba8bf2",
+      "tags": [
+        "go",
+        "gin",
+        "gorm",
+        "postgresql",
+        "architecture"
+      ]
+    },
+    "950102058c27799b90aa:49-50": {
+      "id": "950102058c27799b90aa:49-50",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 49,
+      "end": 50,
+      "summary": "Infinite Canvas 数据库设计拆分为 users、user_newapi_credentials、user_newapi_tokens、ai_models 和 user_ai_models；用户基础信息与 NewAPI 凭据、Token、模型权限分离管理。",
+      "memoryId": "cad2c614",
+      "tags": [
+        "database",
+        "schema",
+        "newapi"
+      ]
+    },
+    "950102058c27799b90aa:48-50": {
+      "id": "950102058c27799b90aa:48-50",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 48,
+      "end": 50,
+      "summary": "2 memories: 本项目后端固定使用 Go、Gin、GORM 和 PostgreSQL，handler 只负责 HTTP，service 负责业务逻辑，repository 只负责数据库访问。 … Infinite Canvas 数据库设计拆分为 users、user_newapi_credentials、user_newapi_tokens、ai_models 和 user_ai_models；用户基础信息与 NewAPI 凭据、Token、模型权限分离管理。",
+      "children": [
+        "950102058c27799b90aa:48-49",
+        "950102058c27799b90aa:49-50"
+      ]
+    },
+    "950102058c27799b90aa:47-50": {
+      "id": "950102058c27799b90aa:47-50",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 47,
+      "end": 50,
+      "summary": "3 memories: 本项目应保留并复用 NewAPI 的 Session/Cookie，只有失效时才使用保存的凭据重新登录，以避免每次请求创建新的 NewAPI Session。 … Infinite Canvas 数据库设计拆分为 users、user_newapi_credentials、user_newapi_tokens、ai_models 和 user_ai_models；用户基础信息与 NewAPI 凭据、Token、模型权限分离管理。",
+      "children": [
+        "950102058c27799b90aa:47-48",
+        "950102058c27799b90aa:48-50"
+      ]
+    },
+    "950102058c27799b90aa:50-51": {
+      "id": "950102058c27799b90aa:50-51",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 50,
+      "end": 51,
+      "summary": "NewAPI Session/Cookie 应在 Infinite Canvas 服务端按用户保存并优先复用，失效后使用加密密码重新登录并覆盖旧 Session；密码失效时设置 reauth_required，要求用户重新输入密码。",
+      "memoryId": "76ef0990",
+      "tags": [
+        "session",
+        "authentication",
+        "newapi"
+      ]
+    },
+    "950102058c27799b90aa:51-52": {
+      "id": "950102058c27799b90aa:51-52",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 51,
+      "end": 52,
+      "summary": "user_newapi_tokens 保存 NewAPI Token ID、完整 token_key、启用状态和默认 Token 标记；请求前检查 Token 是否启用，token_key、密码和 Session 永不返回浏览器或写入日志。",
+      "memoryId": "ee1411ea",
+      "tags": [
+        "tokens",
+        "security",
+        "newapi"
+      ]
+    },
+    "950102058c27799b90aa:50-52": {
+      "id": "950102058c27799b90aa:50-52",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 50,
+      "end": 52,
+      "summary": "2 memories: NewAPI Session/Cookie 应在 Infinite Canvas 服务端按用户保存并优先复用，失效后使用加密密码重新登录并覆盖旧 Session；密码失效时设置 reauth_required，要求用户重新输入密码。 … user_newapi_tokens 保存 NewAPI Token ID、完整 token_key、启用状态和默认 Token 标记；请求前检查 Token 是否启用，token_key、密码和 Session 永不返回浏览器或写入日志。",
+      "children": [
+        "950102058c27799b90aa:50-51",
+        "950102058c27799b90aa:51-52"
+      ]
+    },
+    "950102058c27799b90aa:52-53": {
+      "id": "950102058c27799b90aa:52-53",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 52,
+      "end": 53,
+      "summary": "项目后端使用 Go、Gin、GORM 和 PostgreSQL；接口遵循 { code, data, msg } 响应结构，并按 handler、service、repository、model 分层。",
+      "memoryId": "2c7f81f4",
+      "tags": [
+        "backend",
+        "go",
+        "postgresql"
+      ]
+    },
+    "950102058c27799b90aa:53-54": {
+      "id": "950102058c27799b90aa:53-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "memory",
+      "start": 53,
+      "end": 54,
+      "summary": "项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "memoryId": "ae7f3467",
+      "tags": [
+        "deployment",
+        "nextjs",
+        "nginx",
+        "routing"
+      ]
+    },
+    "950102058c27799b90aa:52-54": {
+      "id": "950102058c27799b90aa:52-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 52,
+      "end": 54,
+      "summary": "2 memories: 项目后端使用 Go、Gin、GORM 和 PostgreSQL；接口遵循 { code, data, msg } 响应结构，并按 handler、service、repository、model 分层。 … 项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "children": [
+        "950102058c27799b90aa:52-53",
+        "950102058c27799b90aa:53-54"
+      ]
+    },
+    "950102058c27799b90aa:50-54": {
+      "id": "950102058c27799b90aa:50-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 50,
+      "end": 54,
+      "summary": "4 memories: NewAPI Session/Cookie 应在 Infinite Canvas 服务端按用户保存并优先复用，失效后使用加密密码重新登录并覆盖旧 Session；密码失效时设置 reauth_required，要求用户重新输入密码。 … 项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "children": [
+        "950102058c27799b90aa:50-52",
+        "950102058c27799b90aa:52-54"
+      ]
+    },
+    "950102058c27799b90aa:47-54": {
+      "id": "950102058c27799b90aa:47-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 47,
+      "end": 54,
+      "summary": "7 memories: 本项目应保留并复用 NewAPI 的 Session/Cookie，只有失效时才使用保存的凭据重新登录，以避免每次请求创建新的 NewAPI Session。 … 项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "children": [
+        "950102058c27799b90aa:47-50",
+        "950102058c27799b90aa:50-54"
+      ]
+    },
+    "950102058c27799b90aa:40-54": {
+      "id": "950102058c27799b90aa:40-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 40,
+      "end": 54,
+      "summary": "14 memories: 画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。 … 项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "children": [
+        "950102058c27799b90aa:40-47",
+        "950102058c27799b90aa:47-54"
+      ]
+    },
+    "950102058c27799b90aa:27-54": {
+      "id": "950102058c27799b90aa:27-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 27,
+      "end": 54,
+      "summary": "27 memories: 四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。 … 项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "children": [
+        "950102058c27799b90aa:27-40",
+        "950102058c27799b90aa:40-54"
+      ]
+    },
+    "950102058c27799b90aa:0-54": {
+      "id": "950102058c27799b90aa:0-54",
+      "snapshotId": "950102058c27799b90aa",
+      "level": "project",
+      "kind": "summary",
+      "start": 0,
+      "end": 54,
+      "summary": "54 memories: 该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。 … 项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+      "children": [
+        "950102058c27799b90aa:0-27",
+        "950102058c27799b90aa:27-54"
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "a9f0071c",
+  "content": "将数据库多驱动实现改为单一 PostgreSQL 驱动时，应同步更新默认配置、相关测试、部署/架构文档及待测试记录。",
+  "createdAt": "2026-08-27T13:50:16.573Z",
+  "updatedAt": "2026-08-27T13:50:16.573Z",
+  "tags": [
+    "database",
+    "documentation",
+    "testing",
+    "conventions"
+  ],
+  "source": "turn-reflection"
+}

@@ -14,6 +14,7 @@
 
 ## 开发文档
 
+- [不使用 Docker 的部署](deployment-without-docker.md)
 - [本地开发](backend/local-development.md)
 - [接口响应约定](backend/api-response.md)
 - [系统配置数据结构](backend/system-settings.md)

@@ -1,0 +1,12 @@
+{
+  "id": "0f63c12d",
+  "content": "Canvas project routes must use the static-export-compatible query form `/canvas?id=<projectId>` rather than dynamic `/canvas/[id]` routes.",
+  "createdAt": "2026-08-27T17:49:34.693Z",
+  "updatedAt": "2026-08-27T17:49:34.693Z",
+  "tags": [
+    "frontend",
+    "routing",
+    "static-export"
+  ],
+  "source": "turn-reflection"
+}

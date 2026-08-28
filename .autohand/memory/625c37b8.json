@@ -1,0 +1,13 @@
+{
+  "id": "625c37b8",
+  "content": "本项目采用同域部署：Nginx 托管静态前端，/api/ 反向代理到 Go 服务；前端使用相对路径请求 API，后端不依赖 Next.js API 代理。",
+  "createdAt": "2026-08-27T18:06:38.099Z",
+  "updatedAt": "2026-08-27T18:10:28.879Z",
+  "tags": [
+    "deployment",
+    "nginx",
+    "static-frontend",
+    "api"
+  ],
+  "source": "turn-reflection"
+}

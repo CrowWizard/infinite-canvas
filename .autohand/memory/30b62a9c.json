@@ -1,0 +1,13 @@
+{
+  "id": "30b62a9c",
+  "content": "NewAPI 集成需要保留每个用户的一份可恢复凭据和 Session：优先复用 Session，失效后使用服务端加密密码自动重新登录并仅重试当前请求一次；密码失效时标记 reauth_required。",
+  "createdAt": "2026-08-27T18:09:57.708Z",
+  "updatedAt": "2026-08-28T01:51:31.624Z",
+  "tags": [
+    "newapi",
+    "session",
+    "credentials",
+    "reauthentication"
+  ],
+  "source": "turn-reflection"
+}

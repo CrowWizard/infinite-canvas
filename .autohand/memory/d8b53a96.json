@@ -1,0 +1,13 @@
+{
+  "id": "d8b53a96",
+  "content": "该项目的后端改造应遵循 handler 只处理 HTTP、service 负责业务流程、repository 负责 GORM 数据访问、NewAPI Client 集中处理外部 HTTP 调用的分层边界。",
+  "createdAt": "2026-08-28T01:51:32.258Z",
+  "updatedAt": "2026-08-28T01:51:32.258Z",
+  "tags": [
+    "go",
+    "gin",
+    "gorm",
+    "architecture"
+  ],
+  "source": "turn-reflection"
+}

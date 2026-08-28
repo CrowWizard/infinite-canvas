@@ -1,0 +1,12 @@
+{
+  "id": "eef14f8c",
+  "content": "用户希望实现保持简单直接，沿用现有 Go/Gin/GORM、Next.js/React/TypeScript 和项目目录边界，避免无关重构与过度抽象。",
+  "createdAt": "2026-08-27T18:06:39.403Z",
+  "updatedAt": "2026-08-27T18:06:39.403Z",
+  "tags": [
+    "coding-style",
+    "architecture",
+    "maintainability"
+  ],
+  "source": "turn-reflection"
+}

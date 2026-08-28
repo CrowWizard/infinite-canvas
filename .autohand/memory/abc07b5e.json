@@ -1,0 +1,13 @@
+{
+  "id": "abc07b5e",
+  "content": "按用户决定，NewAPI 的 token_key 在 Infinite Canvas 服务端按明文保存，但必须使用 json:\"-\"，禁止返回前端、写入日志或出现在错误信息中；用户密码和 Session 虽需保留，也应与 token_key 分开管理。",
+  "createdAt": "2026-08-27T18:04:10.291Z",
+  "updatedAt": "2026-08-27T18:04:10.291Z",
+  "tags": [
+    "security",
+    "database",
+    "newapi",
+    "credentials"
+  ],
+  "source": "turn-reflection"
+}

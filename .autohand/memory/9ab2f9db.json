@@ -1,0 +1,13 @@
+{
+  "id": "9ab2f9db",
+  "content": "移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+  "createdAt": "2026-08-27T13:48:49.879Z",
+  "updatedAt": "2026-08-27T13:48:49.879Z",
+  "tags": [
+    "database",
+    "dependencies",
+    "testing",
+    "documentation"
+  ],
+  "source": "turn-reflection"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "a1ba7401",
+  "content": "本项目的模型统一由 Infinite Canvas 服务端通过 NewAPI 中转，禁止浏览器直连本地模型或保存本地 API Key、Base URL 和模型通道配置；四类模型列表由本项目服务端返回。",
+  "createdAt": "2026-08-27T18:07:40.830Z",
+  "updatedAt": "2026-08-27T18:09:57.385Z",
+  "tags": [
+    "NewAPI",
+    "AI代理",
+    "模型",
+    "安全"
+  ],
+  "source": "turn-reflection"
+}

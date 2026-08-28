@@ -1,0 +1,13 @@
+{
+  "id": "dc4b8a01",
+  "content": "本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+  "createdAt": "2026-08-27T17:40:13.169Z",
+  "updatedAt": "2026-08-27T18:10:29.191Z",
+  "tags": [
+    "newapi",
+    "ai-proxy",
+    "models",
+    "security"
+  ],
+  "source": "turn-reflection"
+}

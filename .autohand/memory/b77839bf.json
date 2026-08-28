@@ -1,0 +1,13 @@
+{
+  "id": "b77839bf",
+  "content": "本项目需要保存 NewAPI 用户 ID、Token ID、完整 token_key 及 token 启用状态；token_key 按当前方案保存为可直接用于模型请求的完整 Key，并且密码、Cookie 和 token_key 均不得返回前端或写入日志。",
+  "createdAt": "2026-08-27T18:09:58.387Z",
+  "updatedAt": "2026-08-27T18:09:58.387Z",
+  "tags": [
+    "NewAPI",
+    "Token",
+    "凭据",
+    "数据安全"
+  ],
+  "source": "turn-reflection"
+}

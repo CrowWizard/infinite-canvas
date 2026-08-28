@@ -1,0 +1,13 @@
+{
+  "id": "ae975e71",
+  "content": "Future AI architecture should use NewAPI as the sole upstream: Infinite Canvas proxies login and all model calls server-side, has no registration endpoint, and disallows local/browser-direct model providers.",
+  "createdAt": "2026-08-27T17:49:35.316Z",
+  "updatedAt": "2026-08-27T17:49:35.316Z",
+  "tags": [
+    "architecture",
+    "ai",
+    "newapi",
+    "security"
+  ],
+  "source": "turn-reflection"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "4f34e208",
+  "content": "该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、model 分层。",
+  "createdAt": "2026-08-27T13:01:36.906Z",
+  "updatedAt": "2026-08-27T13:01:36.906Z",
+  "tags": [
+    "架构",
+    "部署",
+    "后端"
+  ],
+  "source": "turn-reflection"
+}

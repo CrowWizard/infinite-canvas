@@ -1,0 +1,13 @@
+{
+  "id": "24ed5f55",
+  "content": "本项目计划将 NewAPI 作为唯一身份认证和模型服务来源：浏览器只持有 Infinite Canvas 登录态，NewAPI 密码、Session/Cookie、Token Key 均由服务端加密保存和处理，前端不得直连 NewAPI 或其他 OpenAI 兼容接口。",
+  "createdAt": "2026-08-27T17:40:13.481Z",
+  "updatedAt": "2026-08-28T01:51:31.068Z",
+  "tags": [
+    "newapi",
+    "authentication",
+    "ai-proxy",
+    "security"
+  ],
+  "source": "turn-reflection"
+}

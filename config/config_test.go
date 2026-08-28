@@ -1,33 +1,19 @@
 package config
 
-import (
-	"os"
-	"path/filepath"
-	"testing"
-)
+import "testing"
 
-func TestNormalizeDockerSQLiteDSNUsesMountedDataDir(t *testing.T) {
-	root := t.TempDir()
-	appDataDir := filepath.Join(root, "data")
-	if err := os.MkdirAll(appDataDir, 0755); err != nil {
+func TestLoadUsesPostgresDefaults(t *testing.T) {
+	t.Setenv("STORAGE_DRIVER", "")
+	t.Setenv("DATABASE_DSN", "")
+	t.Setenv("JWT_SECRET", "test-secret")
+
+	if err := Load(); err != nil {
 		t.Fatal(err)
 	}
-	Cfg = Config{StorageDriver: "sqlite", DatabaseDSN: "data/infinite-canvas.db?_pragma=busy_timeout(5000)"}
-
-	normalizeDockerSQLiteDSN(appDataDir)
-
-	want := filepath.Join(root, "data", "infinite-canvas.db") + "?_pragma=busy_timeout(5000)"
-	if Cfg.DatabaseDSN != want {
-		t.Fatalf("DatabaseDSN = %q, want %q", Cfg.DatabaseDSN, want)
+	if Cfg.StorageDriver != "postgres" {
+		t.Fatalf("StorageDriver = %q, want postgres", Cfg.StorageDriver)
 	}
-}
-
-func TestNormalizeDockerSQLiteDSNLeavesLocalPathWithoutMountedDataDir(t *testing.T) {
-	Cfg = Config{StorageDriver: "sqlite", DatabaseDSN: "data/infinite-canvas.db"}
-
-	normalizeDockerSQLiteDSN(filepath.Join(t.TempDir(), "missing-data"))
-
-	if Cfg.DatabaseDSN != "data/infinite-canvas.db" {
-		t.Fatalf("DatabaseDSN = %q, want relative local path", Cfg.DatabaseDSN)
+	if Cfg.DatabaseDSN == "" {
+		t.Fatal("DatabaseDSN is empty")
 	}
 }

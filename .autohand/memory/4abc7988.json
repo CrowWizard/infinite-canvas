@@ -1,0 +1,13 @@
+{
+  "id": "4abc7988",
+  "content": "The deployment architecture uses a statically exported Next.js frontend served by Nginx under the same domain, with only `/api/` reverse-proxied to the Go service; no Next.js runtime/API proxy is deployed.",
+  "createdAt": "2026-08-27T17:49:34.381Z",
+  "updatedAt": "2026-08-27T17:49:34.381Z",
+  "tags": [
+    "architecture",
+    "deployment",
+    "nginx",
+    "nextjs"
+  ],
+  "source": "turn-reflection"
+}

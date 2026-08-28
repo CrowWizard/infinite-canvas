@@ -1,0 +1,12 @@
+{
+  "id": "76ef0990",
+  "content": "NewAPI Session/Cookie 应在 Infinite Canvas 服务端按用户保存并优先复用，失效后使用加密密码重新登录并覆盖旧 Session；密码失效时设置 reauth_required，要求用户重新输入密码。",
+  "createdAt": "2026-08-27T17:59:41.602Z",
+  "updatedAt": "2026-08-27T18:12:10.824Z",
+  "tags": [
+    "session",
+    "authentication",
+    "newapi"
+  ],
+  "source": "turn-reflection"
+}

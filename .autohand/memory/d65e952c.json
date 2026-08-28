@@ -1,0 +1,13 @@
+{
+  "id": "d65e952c",
+  "content": "前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` 前缀。",
+  "createdAt": "2026-08-27T18:07:41.821Z",
+  "updatedAt": "2026-08-27T18:07:41.821Z",
+  "tags": [
+    "deployment",
+    "nginx",
+    "api",
+    "static-export"
+  ],
+  "source": "turn-reflection"
+}

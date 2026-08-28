@@ -1,0 +1,12 @@
+{
+  "id": "2f9b3bd3",
+  "content": "当前 Go API 认证、设置和提示词路由使用 `/api/auth/*`、`/api/settings`、`/api/prompts`；不要将这些路径误改为 `/api/v1/*`。`/api/v1/*` 仅用于部分 AI、用户配置和画布任务接口。",
+  "createdAt": "2026-08-27T17:07:51.725Z",
+  "updatedAt": "2026-08-27T17:40:12.546Z",
+  "tags": [
+    "backend",
+    "api-contract",
+    "routing"
+  ],
+  "source": "turn-reflection"
+}

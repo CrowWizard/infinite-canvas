@@ -1,0 +1,13 @@
+{
+  "id": "73c3da2c",
+  "content": "画布项目以完整 JSON 保存到本地 localforage 或服务端 canvas_projects，图片和媒体通过 storageKey 引用 Blob/对象存储；异步图片、音频和视频任务使用独立数据库表以支持刷新、关闭页面和多设备恢复。",
+  "createdAt": "2026-08-27T13:01:37.251Z",
+  "updatedAt": "2026-08-27T13:01:37.251Z",
+  "tags": [
+    "画布",
+    "数据持久化",
+    "异步任务",
+    "对象存储"
+  ],
+  "source": "turn-reflection"
+}

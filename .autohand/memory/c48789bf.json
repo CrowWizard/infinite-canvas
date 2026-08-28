@@ -1,0 +1,13 @@
+{
+  "id": "c48789bf",
+  "content": "前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产构建使用 `pnpm install --frozen-lockfile && pnpm run build`。",
+  "createdAt": "2026-08-27T17:07:52.304Z",
+  "updatedAt": "2026-08-27T17:07:52.304Z",
+  "tags": [
+    "frontend",
+    "pnpm",
+    "build",
+    "dependencies"
+  ],
+  "source": "turn-reflection"
+}

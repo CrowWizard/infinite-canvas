@@ -1,0 +1,12 @@
+{
+  "id": "ee1411ea",
+  "content": "user_newapi_tokens 保存 NewAPI Token ID、完整 token_key、启用状态和默认 Token 标记；请求前检查 Token 是否启用，token_key、密码和 Session 永不返回浏览器或写入日志。",
+  "createdAt": "2026-08-27T18:04:10.647Z",
+  "updatedAt": "2026-08-27T18:12:11.136Z",
+  "tags": [
+    "tokens",
+    "security",
+    "newapi"
+  ],
+  "source": "turn-reflection"
+}

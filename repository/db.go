@@ -2,20 +2,14 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 
-	"github.com/glebarez/sqlite"
-	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/tigerowo/infinite-canvas/config"
 	"github.com/tigerowo/infinite-canvas/model"
-	gormmysql "gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -41,26 +35,15 @@ var (
 func DB() (*gorm.DB, error) {
 	dbOnce.Do(func() {
 		driver := strings.ToLower(strings.TrimSpace(config.Cfg.StorageDriver))
-		if driver == "" {
-			driver = "sqlite"
+		if !isPostgresDriver(driver) {
+			dbErr = errors.New("PostgreSQL 专用构建要求 STORAGE_DRIVER=postgres")
+			return
 		}
-		dsn := config.Cfg.DatabaseDSN
-		if driver == "sqlite" && dsn != ":memory:" {
-			_ = os.MkdirAll(filepath.Dir(dsn), 0755)
+		dbErr = ensurePostgresDatabase(config.Cfg.DatabaseDSN)
+		if dbErr != nil {
+			return
 		}
-		if isPostgresDriver(driver) {
-			dbErr = ensurePostgresDatabase(dsn)
-			if dbErr != nil {
-				return
-			}
-		}
-		if driver == "mysql" {
-			dbErr = ensureMySQLDatabase(dsn)
-			if dbErr != nil {
-				return
-			}
-		}
-		db, dbErr = gorm.Open(dialector(driver, dsn), &gorm.Config{})
+		db, dbErr = gorm.Open(postgres.Open(config.Cfg.DatabaseDSN), &gorm.Config{})
 		if dbErr != nil {
 			return
 		}
@@ -85,57 +68,8 @@ func DB() (*gorm.DB, error) {
 	return db, dbErr
 }
 
-func dialector(driver string, dsn string) gorm.Dialector {
-	switch driver {
-	case "mysql":
-		return gormmysql.Open(dsn)
-	case "postgres", "postgresql":
-		return postgres.Open(dsn)
-	default:
-		return sqlite.Open(dsn)
-	}
-}
-
 func isPostgresDriver(driver string) bool {
 	return driver == "postgres" || driver == "postgresql"
-}
-
-func ensureMySQLDatabase(dsn string) error {
-	cfg, err := mysqldriver.ParseDSN(dsn)
-	if err != nil {
-		return err
-	}
-	target := strings.TrimSpace(cfg.DBName)
-	if target == "" {
-		return nil
-	}
-	ctx := context.Background()
-	targetDB, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return err
-	}
-	err = targetDB.PingContext(ctx)
-	_ = targetDB.Close()
-	if err == nil {
-		return nil
-	}
-	if !isMySQLError(err, 1049) {
-		return err
-	}
-
-	maintenance := cfg.Clone()
-	maintenance.DBName = ""
-	serverDB, err := sql.Open("mysql", maintenance.FormatDSN())
-	if err != nil {
-		return err
-	}
-	defer serverDB.Close()
-
-	_, err = serverDB.ExecContext(ctx, "CREATE DATABASE "+quoteMySQLIdentifier(target)+" CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-	if isMySQLError(err, 1007) {
-		return nil
-	}
-	return err
 }
 
 func ensurePostgresDatabase(dsn string) error {
@@ -175,16 +109,7 @@ func ensurePostgresDatabase(dsn string) error {
 	return err
 }
 
-func isMySQLError(err error, number uint16) bool {
-	var mysqlErr *mysqldriver.MySQLError
-	return errors.As(err, &mysqlErr) && mysqlErr.Number == number
-}
-
 func isPostgresError(err error, code string) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == code
-}
-
-func quoteMySQLIdentifier(name string) string {
-	return "`" + strings.ReplaceAll(name, "`", "``") + "`"
 }

@@ -1,0 +1,656 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "ae7f3467",
+      "preview": "项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代",
+      "createdAt": "2026-08-27T17:40:11.922Z",
+      "updatedAt": "2026-08-27T18:12:11.804Z",
+      "tags": [
+        "deployment",
+        "nextjs",
+        "nginx",
+        "routing"
+      ]
+    },
+    {
+      "id": "2c7f81f4",
+      "preview": "项目后端使用 Go、Gin、GORM 和 PostgreSQL；接口遵循 { code, data, msg } 响应结构，并按 handler、service、repository、model 分层",
+      "createdAt": "2026-08-27T18:09:58.744Z",
+      "updatedAt": "2026-08-27T18:12:11.470Z",
+      "tags": [
+        "backend",
+        "go",
+        "postgresql"
+      ]
+    },
+    {
+      "id": "ee1411ea",
+      "preview": "user_newapi_tokens 保存 NewAPI Token ID、完整 token_key、启用状态和默认 Token 标记；请求前检查 Token 是否启用，token_key、密码和 S",
+      "createdAt": "2026-08-27T18:04:10.647Z",
+      "updatedAt": "2026-08-27T18:12:11.136Z",
+      "tags": [
+        "tokens",
+        "security",
+        "newapi"
+      ]
+    },
+    {
+      "id": "76ef0990",
+      "preview": "NewAPI Session/Cookie 应在 Infinite Canvas 服务端按用户保存并优先复用，失效后使用加密密码重新登录并覆盖旧 Session；密码失效时设置 reauth_requ",
+      "createdAt": "2026-08-27T17:59:41.602Z",
+      "updatedAt": "2026-08-27T18:12:10.824Z",
+      "tags": [
+        "session",
+        "authentication",
+        "newapi"
+      ]
+    },
+    {
+      "id": "cad2c614",
+      "preview": "Infinite Canvas 数据库设计拆分为 users、user_newapi_credentials、user_newapi_tokens、ai_models 和 user_ai_models",
+      "createdAt": "2026-08-27T18:12:10.190Z",
+      "updatedAt": "2026-08-27T18:12:10.190Z",
+      "tags": [
+        "database",
+        "schema",
+        "newapi"
+      ]
+    },
+    {
+      "id": "beba8bf2",
+      "preview": "本项目后端固定使用 Go、Gin、GORM 和 PostgreSQL，handler 只负责 HTTP，service 负责业务逻辑，repository 只负责数据库访问。",
+      "createdAt": "2026-08-27T18:10:30.427Z",
+      "updatedAt": "2026-08-27T18:10:30.427Z",
+      "tags": [
+        "go",
+        "gin",
+        "gorm",
+        "postgresql",
+        "architecture"
+      ]
+    },
+    {
+      "id": "6d001885",
+      "preview": "本项目应保留并复用 NewAPI 的 Session/Cookie，只有失效时才使用保存的凭据重新登录，以避免每次请求创建新的 NewAPI Session。",
+      "createdAt": "2026-08-27T18:04:09.601Z",
+      "updatedAt": "2026-08-27T18:10:29.803Z",
+      "tags": [
+        "newapi",
+        "session",
+        "cookie",
+        "authentication"
+      ]
+    },
+    {
+      "id": "dc4b8a01",
+      "preview": "本项目禁止浏览器直连本地模型或保存模型 API Key，模型请求统一由 Go 服务端通过 NewAPI 代理，四类模型列表由服务端返回。",
+      "createdAt": "2026-08-27T17:40:13.169Z",
+      "updatedAt": "2026-08-27T18:10:29.191Z",
+      "tags": [
+        "newapi",
+        "ai-proxy",
+        "models",
+        "security"
+      ]
+    },
+    {
+      "id": "625c37b8",
+      "preview": "本项目采用同域部署：Nginx 托管静态前端，/api/ 反向代理到 Go 服务；前端使用相对路径请求 API，后端不依赖 Next.js API 代理。",
+      "createdAt": "2026-08-27T18:06:38.099Z",
+      "updatedAt": "2026-08-27T18:10:28.879Z",
+      "tags": [
+        "deployment",
+        "nginx",
+        "static-frontend",
+        "api"
+      ]
+    },
+    {
+      "id": "61c8c1b4",
+      "preview": "项目修改必须先读取现有代码并保持最小范围，不覆盖用户已有未提交改动；新增数据库表或字段时同步更新 docs/backend/backend-database.md。",
+      "createdAt": "2026-08-27T18:09:59.089Z",
+      "updatedAt": "2026-08-27T18:09:59.089Z",
+      "tags": [
+        "开发流程",
+        "Git",
+        "数据库",
+        "文档"
+      ]
+    },
+    {
+      "id": "b77839bf",
+      "preview": "本项目需要保存 NewAPI 用户 ID、Token ID、完整 token_key 及 token 启用状态；token_key 按当前方案保存为可直接用于模型请求的完整 Key，并且密码、Cook",
+      "createdAt": "2026-08-27T18:09:58.387Z",
+      "updatedAt": "2026-08-27T18:09:58.387Z",
+      "tags": [
+        "NewAPI",
+        "Token",
+        "凭据",
+        "数据安全"
+      ]
+    },
+    {
+      "id": "30b62a9c",
+      "preview": "NewAPI 集成需要保留每个用户的一份可恢复凭据和 Session：优先复用 Session，失效后使用服务端加密密码自动重新登录并仅重试当前请求一次；密码失效时标记 reauth_required",
+      "createdAt": "2026-08-27T18:09:57.708Z",
+      "updatedAt": "2026-08-28T01:51:31.624Z",
+      "tags": [
+        "newapi",
+        "session",
+        "credentials",
+        "reauthentication"
+      ]
+    },
+    {
+      "id": "a1ba7401",
+      "preview": "本项目的模型统一由 Infinite Canvas 服务端通过 NewAPI 中转，禁止浏览器直连本地模型或保存本地 API Key、Base URL 和模型通道配置；四类模型列表由本项目服务端返回。",
+      "createdAt": "2026-08-27T18:07:40.830Z",
+      "updatedAt": "2026-08-27T18:09:57.385Z",
+      "tags": [
+        "NewAPI",
+        "AI代理",
+        "模型",
+        "安全"
+      ]
+    },
+    {
+      "id": "ca71cf88",
+      "preview": "画布项目详情使用 `/canvas?id=项目ID` 查询参数，以支持 Next.js 静态导出；不要恢复运行时任意 ID 的 `/canvas/[id]` 动态路由。",
+      "createdAt": "2026-08-27T18:07:42.133Z",
+      "updatedAt": "2026-08-27T18:07:42.133Z",
+      "tags": [
+        "nextjs",
+        "static-export",
+        "canvas",
+        "routing"
+      ]
+    },
+    {
+      "id": "d65e952c",
+      "preview": "前后端采用同域部署：Nginx 托管静态前端，只有 `/api/` 反向代理到 Go 服务；前端 API 路径应匹配 Go 服务实际的 `/api/...` 路由，不添加不存在的 `/api/v1` ",
+      "createdAt": "2026-08-27T18:07:41.821Z",
+      "updatedAt": "2026-08-27T18:07:41.821Z",
+      "tags": [
+        "deployment",
+        "nginx",
+        "api",
+        "static-export"
+      ]
+    },
+    {
+      "id": "24ed5f55",
+      "preview": "本项目计划将 NewAPI 作为唯一身份认证和模型服务来源：浏览器只持有 Infinite Canvas 登录态，NewAPI 密码、Session/Cookie、Token Key 均由服务端加密保",
+      "createdAt": "2026-08-27T17:40:13.481Z",
+      "updatedAt": "2026-08-28T01:51:31.068Z",
+      "tags": [
+        "newapi",
+        "authentication",
+        "ai-proxy",
+        "security"
+      ]
+    },
+    {
+      "id": "de7c315c",
+      "preview": "项目约定每次代码修改后不强制执行语法检查、构建或测试，由用户自行验证；但需要关注实际环境中依赖完整性问题可能导致前端构建失败。",
+      "createdAt": "2026-08-27T18:06:39.726Z",
+      "updatedAt": "2026-08-27T18:06:39.726Z",
+      "tags": [
+        "verification",
+        "frontend",
+        "dependencies"
+      ]
+    },
+    {
+      "id": "eef14f8c",
+      "preview": "用户希望实现保持简单直接，沿用现有 Go/Gin/GORM、Next.js/React/TypeScript 和项目目录边界，避免无关重构与过度抽象。",
+      "createdAt": "2026-08-27T18:06:39.403Z",
+      "updatedAt": "2026-08-27T18:06:39.403Z",
+      "tags": [
+        "coding-style",
+        "architecture",
+        "maintainability"
+      ]
+    },
+    {
+      "id": "4cebf065",
+      "preview": "修改代码前必须先读取相关文件并获得用户明确许可；已有工作区修改不得回滚或覆盖，只能在必要范围内追加改动。",
+      "createdAt": "2026-08-27T18:06:39.080Z",
+      "updatedAt": "2026-08-27T18:06:39.080Z",
+      "tags": [
+        "workflow",
+        "git",
+        "editing"
+      ]
+    },
+    {
+      "id": "2a2fa6a5",
+      "preview": "项目采用 Next.js App Router 静态导出，画布项目使用 /canvas?id=项目ID 查询参数，不使用运行时动态路由 /canvas/[id]。",
+      "createdAt": "2026-08-27T18:06:38.768Z",
+      "updatedAt": "2026-08-27T18:06:38.768Z",
+      "tags": [
+        "frontend",
+        "nextjs",
+        "static-export",
+        "canvas"
+      ]
+    },
+    {
+      "id": "7a18b82b",
+      "preview": "项目使用 PostgreSQL 作为唯一数据库，后端采用 Go、Gin 和 GORM；不保留 SQLite/MySQL 兼容分支。",
+      "createdAt": "2026-08-27T13:48:49.556Z",
+      "updatedAt": "2026-08-27T18:06:38.444Z",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ]
+    },
+    {
+      "id": "43ab5343",
+      "preview": "涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+      "createdAt": "2026-08-27T18:06:36.396Z",
+      "updatedAt": "2026-08-27T18:06:36.396Z",
+      "tags": [
+        "security",
+        "credentials",
+        "newapi"
+      ]
+    },
+    {
+      "id": "abc07b5e",
+      "preview": "按用户决定，NewAPI 的 token_key 在 Infinite Canvas 服务端按明文保存，但必须使用 json:\"-\"，禁止返回前端、写入日志或出现在错误信息中；用户密码和 Sessio",
+      "createdAt": "2026-08-27T18:04:10.291Z",
+      "updatedAt": "2026-08-27T18:04:10.291Z",
+      "tags": [
+        "security",
+        "database",
+        "newapi",
+        "credentials"
+      ]
+    },
+    {
+      "id": "84585c20",
+      "preview": "Infinite Canvas 的 NewAPI Token 数据应独立建表，至少包含 new_api_user_id、new_api_token_id、token_key、token_status ",
+      "createdAt": "2026-08-27T18:04:09.946Z",
+      "updatedAt": "2026-08-27T18:04:09.946Z",
+      "tags": [
+        "database",
+        "newapi",
+        "token",
+        "token-status"
+      ]
+    },
+    {
+      "id": "8127d22f",
+      "preview": "项目计划禁止本地模型和浏览器直连模型服务，所有模型请求、模型列表和用户配置统一经过 Go 服务端，模型服务地址与凭据不返回浏览器。",
+      "createdAt": "2026-08-27T18:04:08.945Z",
+      "updatedAt": "2026-08-27T18:04:08.945Z",
+      "tags": [
+        "ai",
+        "security",
+        "backend-proxy",
+        "no-local-model"
+      ]
+    },
+    {
+      "id": "72fcde74",
+      "preview": "项目后端使用 Go、Gin、GORM 和 PostgreSQL，数据库通过 GORM AutoMigrate 管理；用户 NewAPI Token 应独立建表，模型定义与用户模型权限分开建模。",
+      "createdAt": "2026-08-27T17:59:42.292Z",
+      "updatedAt": "2026-08-27T17:59:42.292Z",
+      "tags": [
+        "go",
+        "gorm",
+        "postgresql",
+        "database"
+      ]
+    },
+    {
+      "id": "a2fc9c1c",
+      "preview": "四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。",
+      "createdAt": "2026-08-27T17:59:41.947Z",
+      "updatedAt": "2026-08-27T17:59:41.947Z",
+      "tags": [
+        "models",
+        "permissions",
+        "frontend-backend"
+      ]
+    },
+    {
+      "id": "72f51012",
+      "preview": "画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+      "createdAt": "2026-08-27T14:32:03.429Z",
+      "updatedAt": "2026-08-27T17:56:24.505Z",
+      "tags": [
+        "nextjs",
+        "canvas",
+        "routing"
+      ]
+    },
+    {
+      "id": "34f45cad",
+      "preview": "The image, video, text, and audio model lists must be returned and validated by the Infinite Canvas ",
+      "createdAt": "2026-08-27T17:49:35.940Z",
+      "updatedAt": "2026-08-27T17:49:35.940Z",
+      "tags": [
+        "ai",
+        "models",
+        "backend",
+        "frontend"
+      ]
+    },
+    {
+      "id": "8a4b7c30",
+      "preview": "For NewAPI users, persist the NewAPI user ID and token ID plus an encrypted NewAPI token key on the ",
+      "createdAt": "2026-08-27T17:49:35.628Z",
+      "updatedAt": "2026-08-27T17:49:35.628Z",
+      "tags": [
+        "newapi",
+        "credentials",
+        "security",
+        "authentication"
+      ]
+    },
+    {
+      "id": "ae975e71",
+      "preview": "Future AI architecture should use NewAPI as the sole upstream: Infinite Canvas proxies login and all",
+      "createdAt": "2026-08-27T17:49:35.316Z",
+      "updatedAt": "2026-08-27T17:49:35.316Z",
+      "tags": [
+        "architecture",
+        "ai",
+        "newapi",
+        "security"
+      ]
+    },
+    {
+      "id": "3e3ebf00",
+      "preview": "The backend is PostgreSQL-only; SQLite and MySQL are intentionally removed from configuration, drive",
+      "createdAt": "2026-08-27T17:49:35.004Z",
+      "updatedAt": "2026-08-27T17:49:35.004Z",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ]
+    },
+    {
+      "id": "0f63c12d",
+      "preview": "Canvas project routes must use the static-export-compatible query form `/canvas?id=<projectId>` rath",
+      "createdAt": "2026-08-27T17:49:34.693Z",
+      "updatedAt": "2026-08-27T17:49:34.693Z",
+      "tags": [
+        "frontend",
+        "routing",
+        "static-export"
+      ]
+    },
+    {
+      "id": "4abc7988",
+      "preview": "The deployment architecture uses a statically exported Next.js frontend served by Nginx under the sa",
+      "createdAt": "2026-08-27T17:49:34.381Z",
+      "updatedAt": "2026-08-27T17:49:34.381Z",
+      "tags": [
+        "architecture",
+        "deployment",
+        "nginx",
+        "nextjs"
+      ]
+    },
+    {
+      "id": "0f4a6278",
+      "preview": "Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do n",
+      "createdAt": "2026-08-27T17:49:34.070Z",
+      "updatedAt": "2026-08-27T17:49:34.070Z",
+      "tags": [
+        "workflow",
+        "safety",
+        "git"
+      ]
+    },
+    {
+      "id": "c892665d",
+      "preview": "修改前必须先获得用户明确授权；工作区已有未提交修改时不得回滚或覆盖，只在必要范围内追加修改。",
+      "createdAt": "2026-08-27T17:40:13.793Z",
+      "updatedAt": "2026-08-27T17:40:13.793Z",
+      "tags": [
+        "workflow",
+        "git",
+        "safety"
+      ]
+    },
+    {
+      "id": "2e48fbcf",
+      "preview": "画布入口的路由判断必须与列表页 Hooks 分离：`CanvasRoute` 只读取查询参数并渲染独立的编辑器或列表组件，避免条件返回改变同一组件的 Hooks 数量。",
+      "createdAt": "2026-08-27T17:40:12.857Z",
+      "updatedAt": "2026-08-27T17:40:12.857Z",
+      "tags": [
+        "frontend",
+        "react",
+        "hooks",
+        "canvas"
+      ]
+    },
+    {
+      "id": "2f9b3bd3",
+      "preview": "当前 Go API 认证、设置和提示词路由使用 `/api/auth/*`、`/api/settings`、`/api/prompts`；不要将这些路径误改为 `/api/v1/*`。`/api/v1",
+      "createdAt": "2026-08-27T17:07:51.725Z",
+      "updatedAt": "2026-08-27T17:40:12.546Z",
+      "tags": [
+        "backend",
+        "api-contract",
+        "routing"
+      ]
+    },
+    {
+      "id": "8715b014",
+      "preview": "后端数据库已确定为 PostgreSQL 专用，默认 `STORAGE_DRIVER=postgres`；不要恢复 SQLite 或 MySQL 兼容分支，除非用户明确要求。",
+      "createdAt": "2026-08-27T17:07:52.003Z",
+      "updatedAt": "2026-08-27T17:40:12.233Z",
+      "tags": [
+        "backend",
+        "database",
+        "postgresql"
+      ]
+    },
+    {
+      "id": "bb7e4e3a",
+      "preview": "前端已改为 Next.js 静态导出（`output: \"export\"`），画布编辑地址统一使用 `/canvas?id=项目ID`，不能再新增依赖运行时参数的动态路由。",
+      "createdAt": "2026-08-27T17:07:51.436Z",
+      "updatedAt": "2026-08-27T17:40:11.621Z",
+      "tags": [
+        "frontend",
+        "nextjs",
+        "routing",
+        "static-export"
+      ]
+    },
+    {
+      "id": "46c56aa8",
+      "preview": "本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端",
+      "createdAt": "2026-08-27T14:31:19.847Z",
+      "updatedAt": "2026-08-27T17:40:11.309Z",
+      "tags": [
+        "deployment",
+        "nginx",
+        "static-export",
+        "api"
+      ]
+    },
+    {
+      "id": "c48789bf",
+      "preview": "前端依赖当前由 pnpm 管理，并生成了 `web/pnpm-lock.yaml` 与 `web/pnpm-workspace.yaml`；`sharp` 需要在 pnpm 构建脚本白名单中获批，生产",
+      "createdAt": "2026-08-27T17:07:52.304Z",
+      "updatedAt": "2026-08-27T17:07:52.304Z",
+      "tags": [
+        "frontend",
+        "pnpm",
+        "build",
+        "dependencies"
+      ]
+    },
+    {
+      "id": "4633de27",
+      "preview": "项目 Git `origin` 远程地址使用 SSH：`git@github.com:CrowWizard/infinite-canvas.git`。",
+      "createdAt": "2026-08-27T14:32:05.246Z",
+      "updatedAt": "2026-08-27T14:32:05.246Z",
+      "tags": [
+        "git",
+        "remote",
+        "github"
+      ]
+    },
+    {
+      "id": "82d0c224",
+      "preview": "画布编辑页使用静态查询参数路由 `/canvas?id=项目ID`，不使用运行时动态路由 `/canvas/[id]`；前端 API 请求保持相对 `/api/` 路径，因此后端无需额外增加 CORS",
+      "createdAt": "2026-08-27T14:31:21.218Z",
+      "updatedAt": "2026-08-27T14:31:21.218Z",
+      "tags": [
+        "Next.js",
+        "canvas",
+        "路由",
+        "API"
+      ]
+    },
+    {
+      "id": "6b55889d",
+      "preview": "该环境曾在完整 Go 构建的链接阶段触发 Go 工具链内部 panic（cmd/internal/goobj）；排障时可先执行 go clean -cache，再用 go build -a 重试。",
+      "createdAt": "2026-08-27T13:50:16.852Z",
+      "updatedAt": "2026-08-27T13:50:16.852Z",
+      "tags": [
+        "go",
+        "build",
+        "troubleshooting"
+      ]
+    },
+    {
+      "id": "a9f0071c",
+      "preview": "将数据库多驱动实现改为单一 PostgreSQL 驱动时，应同步更新默认配置、相关测试、部署/架构文档及待测试记录。",
+      "createdAt": "2026-08-27T13:50:16.573Z",
+      "updatedAt": "2026-08-27T13:50:16.573Z",
+      "tags": [
+        "database",
+        "documentation",
+        "testing",
+        "conventions"
+      ]
+    },
+    {
+      "id": "15846c1c",
+      "preview": "用户要求的项目改动需先取得明确许可；得到“允许修改”后方可编辑，并必须保留工作区已有的用户改动。",
+      "createdAt": "2026-08-27T13:48:50.525Z",
+      "updatedAt": "2026-08-27T13:48:50.525Z",
+      "tags": [
+        "workflow",
+        "git",
+        "safety"
+      ]
+    },
+    {
+      "id": "295846f3",
+      "preview": "该工作区曾出现 Go 链接器内部 `cmd/internal/goobj` 的 slice bounds panic；后续完整构建失败时，应区分工具链/缓存异常与项目源码或依赖编译错误。",
+      "createdAt": "2026-08-27T13:48:50.191Z",
+      "updatedAt": "2026-08-27T13:48:50.191Z",
+      "tags": [
+        "go",
+        "build",
+        "troubleshooting"
+      ]
+    },
+    {
+      "id": "9ab2f9db",
+      "preview": "移除数据库驱动时应同时清理驱动分支、驱动专用配置兼容逻辑、相关测试、go.mod/go.sum 和技术文档，避免仅删除依赖导致运行时默认配置失效。",
+      "createdAt": "2026-08-27T13:48:49.879Z",
+      "updatedAt": "2026-08-27T13:48:49.879Z",
+      "tags": [
+        "database",
+        "dependencies",
+        "testing",
+        "documentation"
+      ]
+    },
+    {
+      "id": "1e4c6618",
+      "preview": "项目部署需要支持不使用 Docker 的方式：Go 后端与 Next.js 前端分开运行，生产环境可使用 systemd 管理进程、Nginx 反向代理和 HTTPS。",
+      "createdAt": "2026-08-27T13:11:33.632Z",
+      "updatedAt": "2026-08-27T13:11:33.632Z",
+      "tags": [
+        "部署",
+        "Go",
+        "Next.js",
+        "systemd",
+        "Nginx"
+      ]
+    },
+    {
+      "id": "304f8675",
+      "preview": "用户要求将重要分析和操作说明整理为项目内的 Markdown 文档，并放入 docs 目录，同时通过 docs/index.md 建立索引入口。",
+      "createdAt": "2026-08-27T13:11:33.387Z",
+      "updatedAt": "2026-08-27T13:11:33.387Z",
+      "tags": [
+        "文档",
+        "Markdown",
+        "docs",
+        "索引"
+      ]
+    },
+    {
+      "id": "00593f86",
+      "preview": "本项目的总体架构说明统一维护在 `docs/architecture.md`，并应从 `docs/index.md` 的开发文档部分提供入口。",
+      "createdAt": "2026-08-27T13:06:44.069Z",
+      "updatedAt": "2026-08-27T13:06:44.069Z",
+      "tags": [
+        "文档",
+        "架构",
+        "docs"
+      ]
+    },
+    {
+      "id": "73c3da2c",
+      "preview": "画布项目以完整 JSON 保存到本地 localforage 或服务端 canvas_projects，图片和媒体通过 storageKey 引用 Blob/对象存储；异步图片、音频和视频任务使用独立",
+      "createdAt": "2026-08-27T13:01:37.251Z",
+      "updatedAt": "2026-08-27T13:01:37.251Z",
+      "tags": [
+        "画布",
+        "数据持久化",
+        "异步任务",
+        "对象存储"
+      ]
+    },
+    {
+      "id": "4f34e208",
+      "preview": "该项目采用 Next.js 对外提供页面并代理 /api/* 到内部 Go 服务的部署结构；Go 后端按 router、middleware、handler、service、repository、mo",
+      "createdAt": "2026-08-27T13:01:36.906Z",
+      "updatedAt": "2026-08-27T13:01:36.906Z",
+      "tags": [
+        "架构",
+        "部署",
+        "后端"
+      ]
+    },
+    {
+      "id": "003f383d",
+      "preview": "模型目录由 Infinite Canvas 服务端维护 ai_models 和用户模型权限，统一向前端返回 text、image、video、audio 四类模型；模型请求前必须校验用户、Token ",
+      "createdAt": "2026-08-28T01:51:31.969Z",
+      "updatedAt": "2026-08-28T01:51:31.969Z",
+      "tags": [
+        "models",
+        "permissions",
+        "ai-proxy",
+        "backend"
+      ]
+    },
+    {
+      "id": "d8b53a96",
+      "preview": "该项目的后端改造应遵循 handler 只处理 HTTP、service 负责业务流程、repository 负责 GORM 数据访问、NewAPI Client 集中处理外部 HTTP 调用的分层边",
+      "createdAt": "2026-08-28T01:51:32.258Z",
+      "updatedAt": "2026-08-28T01:51:32.258Z",
+      "tags": [
+        "go",
+        "gin",
+        "gorm",
+        "architecture"
+      ]
+    }
+  ]
+}

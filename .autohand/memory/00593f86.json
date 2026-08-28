@@ -1,0 +1,12 @@
+{
+  "id": "00593f86",
+  "content": "本项目的总体架构说明统一维护在 `docs/architecture.md`，并应从 `docs/index.md` 的开发文档部分提供入口。",
+  "createdAt": "2026-08-27T13:06:44.069Z",
+  "updatedAt": "2026-08-27T13:06:44.069Z",
+  "tags": [
+    "文档",
+    "架构",
+    "docs"
+  ],
+  "source": "turn-reflection"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "72f51012",
+  "content": "画布详情页使用静态可导出的 `/canvas?id=项目ID` 形式，不使用运行时动态路由 `/canvas/[id]`。",
+  "createdAt": "2026-08-27T14:32:03.429Z",
+  "updatedAt": "2026-08-27T17:56:24.505Z",
+  "tags": [
+    "nextjs",
+    "canvas",
+    "routing"
+  ],
+  "source": "turn-reflection"
+}

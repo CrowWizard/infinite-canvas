@@ -1,0 +1,12 @@
+{
+  "id": "3e3ebf00",
+  "content": "The backend is PostgreSQL-only; SQLite and MySQL are intentionally removed from configuration, drivers, and deployment assumptions.",
+  "createdAt": "2026-08-27T17:49:35.004Z",
+  "updatedAt": "2026-08-27T17:49:35.004Z",
+  "tags": [
+    "backend",
+    "database",
+    "postgresql"
+  ],
+  "source": "turn-reflection"
+}

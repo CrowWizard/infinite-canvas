@@ -1,0 +1,14 @@
+{
+  "id": "1e4c6618",
+  "content": "项目部署需要支持不使用 Docker 的方式：Go 后端与 Next.js 前端分开运行，生产环境可使用 systemd 管理进程、Nginx 反向代理和 HTTPS。",
+  "createdAt": "2026-08-27T13:11:33.632Z",
+  "updatedAt": "2026-08-27T13:11:33.632Z",
+  "tags": [
+    "部署",
+    "Go",
+    "Next.js",
+    "systemd",
+    "Nginx"
+  ],
+  "source": "turn-reflection"
+}

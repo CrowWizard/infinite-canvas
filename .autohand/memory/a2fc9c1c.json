@@ -1,0 +1,12 @@
+{
+  "id": "a2fc9c1c",
+  "content": "四类模型列表统一由服务端返回，按 text、image、video、audio 分类，并根据当前 NewAPI 用户的可用模型权限过滤；前端只保存模型选择，不保存 baseUrl 或 apiKey。",
+  "createdAt": "2026-08-27T17:59:41.947Z",
+  "updatedAt": "2026-08-27T17:59:41.947Z",
+  "tags": [
+    "models",
+    "permissions",
+    "frontend-backend"
+  ],
+  "source": "turn-reflection"
+}

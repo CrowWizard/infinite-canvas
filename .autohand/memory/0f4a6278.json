@@ -1,0 +1,12 @@
+{
+  "id": "0f4a6278",
+  "content": "Before any file edit, deletion, or formatting in this project, obtain explicit user permission; do not revert or overwrite existing workspace changes.",
+  "createdAt": "2026-08-27T17:49:34.070Z",
+  "updatedAt": "2026-08-27T17:49:34.070Z",
+  "tags": [
+    "workflow",
+    "safety",
+    "git"
+  ],
+  "source": "turn-reflection"
+}

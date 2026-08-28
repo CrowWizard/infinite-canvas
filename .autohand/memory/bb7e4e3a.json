@@ -1,0 +1,13 @@
+{
+  "id": "bb7e4e3a",
+  "content": "前端已改为 Next.js 静态导出（`output: \"export\"`），画布编辑地址统一使用 `/canvas?id=项目ID`，不能再新增依赖运行时参数的动态路由。",
+  "createdAt": "2026-08-27T17:07:51.436Z",
+  "updatedAt": "2026-08-27T17:40:11.621Z",
+  "tags": [
+    "frontend",
+    "nextjs",
+    "routing",
+    "static-export"
+  ],
+  "source": "turn-reflection"
+}

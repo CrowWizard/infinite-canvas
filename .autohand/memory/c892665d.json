@@ -1,0 +1,12 @@
+{
+  "id": "c892665d",
+  "content": "修改前必须先获得用户明确授权；工作区已有未提交修改时不得回滚或覆盖，只在必要范围内追加修改。",
+  "createdAt": "2026-08-27T17:40:13.793Z",
+  "updatedAt": "2026-08-27T17:40:13.793Z",
+  "tags": [
+    "workflow",
+    "git",
+    "safety"
+  ],
+  "source": "turn-reflection"
+}

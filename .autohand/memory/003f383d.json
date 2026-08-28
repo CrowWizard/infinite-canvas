@@ -1,0 +1,13 @@
+{
+  "id": "003f383d",
+  "content": "模型目录由 Infinite Canvas 服务端维护 ai_models 和用户模型权限，统一向前端返回 text、image、video、audio 四类模型；模型请求前必须校验用户、Token 状态、全局模型状态和用户权限。",
+  "createdAt": "2026-08-28T01:51:31.969Z",
+  "updatedAt": "2026-08-28T01:51:31.969Z",
+  "tags": [
+    "models",
+    "permissions",
+    "ai-proxy",
+    "backend"
+  ],
+  "source": "turn-reflection"
+}

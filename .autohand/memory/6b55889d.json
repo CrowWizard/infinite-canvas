@@ -1,0 +1,12 @@
+{
+  "id": "6b55889d",
+  "content": "该环境曾在完整 Go 构建的链接阶段触发 Go 工具链内部 panic（cmd/internal/goobj）；排障时可先执行 go clean -cache，再用 go build -a 重试。",
+  "createdAt": "2026-08-27T13:50:16.852Z",
+  "updatedAt": "2026-08-27T13:50:16.852Z",
+  "tags": [
+    "go",
+    "build",
+    "troubleshooting"
+  ],
+  "source": "turn-reflection"
+}

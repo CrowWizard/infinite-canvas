@@ -1,0 +1,13 @@
+{
+  "id": "2e48fbcf",
+  "content": "画布入口的路由判断必须与列表页 Hooks 分离：`CanvasRoute` 只读取查询参数并渲染独立的编辑器或列表组件，避免条件返回改变同一组件的 Hooks 数量。",
+  "createdAt": "2026-08-27T17:40:12.857Z",
+  "updatedAt": "2026-08-27T17:40:12.857Z",
+  "tags": [
+    "frontend",
+    "react",
+    "hooks",
+    "canvas"
+  ],
+  "source": "turn-reflection"
+}

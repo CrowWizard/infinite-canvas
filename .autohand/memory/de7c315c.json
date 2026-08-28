@@ -1,0 +1,12 @@
+{
+  "id": "de7c315c",
+  "content": "项目约定每次代码修改后不强制执行语法检查、构建或测试，由用户自行验证；但需要关注实际环境中依赖完整性问题可能导致前端构建失败。",
+  "createdAt": "2026-08-27T18:06:39.726Z",
+  "updatedAt": "2026-08-27T18:06:39.726Z",
+  "tags": [
+    "verification",
+    "frontend",
+    "dependencies"
+  ],
+  "source": "turn-reflection"
+}

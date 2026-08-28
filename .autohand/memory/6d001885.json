@@ -1,0 +1,13 @@
+{
+  "id": "6d001885",
+  "content": "本项目应保留并复用 NewAPI 的 Session/Cookie，只有失效时才使用保存的凭据重新登录，以避免每次请求创建新的 NewAPI Session。",
+  "createdAt": "2026-08-27T18:04:09.601Z",
+  "updatedAt": "2026-08-27T18:10:29.803Z",
+  "tags": [
+    "newapi",
+    "session",
+    "cookie",
+    "authentication"
+  ],
+  "source": "turn-reflection"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "7a18b82b",
+  "content": "项目使用 PostgreSQL 作为唯一数据库，后端采用 Go、Gin 和 GORM；不保留 SQLite/MySQL 兼容分支。",
+  "createdAt": "2026-08-27T13:48:49.556Z",
+  "updatedAt": "2026-08-27T18:06:38.444Z",
+  "tags": [
+    "backend",
+    "database",
+    "postgresql"
+  ],
+  "source": "turn-reflection"
+}

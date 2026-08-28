@@ -1,0 +1,14 @@
+{
+  "id": "beba8bf2",
+  "content": "本项目后端固定使用 Go、Gin、GORM 和 PostgreSQL，handler 只负责 HTTP，service 负责业务逻辑，repository 只负责数据库访问。",
+  "createdAt": "2026-08-27T18:10:30.427Z",
+  "updatedAt": "2026-08-27T18:10:30.427Z",
+  "tags": [
+    "go",
+    "gin",
+    "gorm",
+    "postgresql",
+    "architecture"
+  ],
+  "source": "turn-reflection"
+}

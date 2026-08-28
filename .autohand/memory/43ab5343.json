@@ -1,0 +1,12 @@
+{
+  "id": "43ab5343",
+  "content": "涉及安全凭据时，用户希望保留实现功能所必需的密码和 Token Key，不因安全设计而删除；当前项目决定采用服务端可恢复方式保存，并支持 Token Key 禁用状态和手动刷新。",
+  "createdAt": "2026-08-27T18:06:36.396Z",
+  "updatedAt": "2026-08-27T18:06:36.396Z",
+  "tags": [
+    "security",
+    "credentials",
+    "newapi"
+  ],
+  "source": "turn-reflection"
+}

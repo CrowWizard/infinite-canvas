@@ -1,0 +1,12 @@
+{
+  "id": "15846c1c",
+  "content": "用户要求的项目改动需先取得明确许可；得到“允许修改”后方可编辑，并必须保留工作区已有的用户改动。",
+  "createdAt": "2026-08-27T13:48:50.525Z",
+  "updatedAt": "2026-08-27T13:48:50.525Z",
+  "tags": [
+    "workflow",
+    "git",
+    "safety"
+  ],
+  "source": "turn-reflection"
+}

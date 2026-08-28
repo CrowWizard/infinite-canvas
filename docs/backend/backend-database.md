@@ -11,10 +11,8 @@ description: 当前后端主要数据表与字段说明
 
 后端使用 GORM 管理数据库连接和表结构迁移。
 
-支持的存储驱动：
+当前 PostgreSQL 专用构建使用：
 
-- `sqlite`
-- `mysql`
 - `postgresql`
 
 当前启动时执行 `AutoMigrate`，自动维护以下表：

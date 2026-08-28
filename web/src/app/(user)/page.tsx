@@ -119,7 +119,7 @@ export default function IndexPage() {
             agentConfig,
             pendingAgentRequest: { prompt: text, assets: pendingAssets.filter((asset) => referenceIds.includes(asset.nodeId)) },
         });
-        router.push(`/canvas/${projectId}`);
+        router.push(`/canvas?id=${encodeURIComponent(projectId)}`);
     };
 
     return (

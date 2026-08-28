@@ -1,0 +1,12 @@
+{
+  "id": "4633de27",
+  "content": "项目 Git `origin` 远程地址使用 SSH：`git@github.com:CrowWizard/infinite-canvas.git`。",
+  "createdAt": "2026-08-27T14:32:05.246Z",
+  "updatedAt": "2026-08-27T14:32:05.246Z",
+  "tags": [
+    "git",
+    "remote",
+    "github"
+  ],
+  "source": "turn-reflection"
+}

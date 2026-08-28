@@ -1,0 +1,13 @@
+{
+  "id": "34f45cad",
+  "content": "The image, video, text, and audio model lists must be returned and validated by the Infinite Canvas backend based on NewAPI permissions; frontend model-name heuristics and user-managed local channels should be removed.",
+  "createdAt": "2026-08-27T17:49:35.940Z",
+  "updatedAt": "2026-08-27T17:49:35.940Z",
+  "tags": [
+    "ai",
+    "models",
+    "backend",
+    "frontend"
+  ],
+  "source": "turn-reflection"
+}

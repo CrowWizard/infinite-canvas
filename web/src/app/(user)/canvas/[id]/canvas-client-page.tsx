@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent as ReactChangeEvent, DragEvent as ReactDragEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from "react";
 import dynamic from "next/dynamic";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Download, Globe2, Home, ImageIcon, Images, Layers3, List, Maximize, Menu, Bot, Music2, PanelLeftClose, PanelLeftOpen, Pause, Play, Plus, Redo2, Settings2, Trash2, Undo2, Upload, Video, Volume2, VolumeX, X } from "lucide-react";
 import { saveAs } from "file-saver";
 
@@ -158,8 +158,7 @@ function createCanvasNode(type: CanvasNodeType, position: Position, metadata?: C
     };
 }
 
-export default function CanvasPage() {
-    const params = useParams<{ id: string }>();
+export default function CanvasClientPage({ projectId }: { projectId: string }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -168,7 +167,7 @@ export default function CanvasPage() {
 
     if (!mounted) return <CanvasRefreshShell />;
 
-    return <InfiniteCanvasPage key={params.id} projectId={params.id} />;
+    return <InfiniteCanvasPage key={projectId} projectId={projectId} />;
 }
 
 function CanvasRefreshShell() {
@@ -1293,7 +1292,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
 
     const createAndOpenProject = useCallback(() => {
         const id = createProject(`无限画布 ${useCanvasStore.getState().projects.length + 1}`);
-        router.push(`/canvas/${id}`);
+        router.push(`/canvas?id=${encodeURIComponent(id)}`);
     }, [createProject, router]);
 
     const deleteCurrentProject = useCallback(() => {

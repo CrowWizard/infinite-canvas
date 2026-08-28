@@ -1,0 +1,13 @@
+{
+  "id": "46c56aa8",
+  "content": "本项目生产部署采用同域架构：Nginx 托管 `web/out` 静态前端，并将 `/api/` 反向代理到监听 `127.0.0.1:8080` 的 Go 服务；前端不再运行 Next.js 服务端。",
+  "createdAt": "2026-08-27T14:31:19.847Z",
+  "updatedAt": "2026-08-27T17:40:11.309Z",
+  "tags": [
+    "deployment",
+    "nginx",
+    "static-export",
+    "api"
+  ],
+  "source": "turn-reflection"
+}

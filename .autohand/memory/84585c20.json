@@ -1,0 +1,13 @@
+{
+  "id": "84585c20",
+  "content": "Infinite Canvas 的 NewAPI Token 数据应独立建表，至少包含 new_api_user_id、new_api_token_id、token_key、token_status 和 is_default；token_status 用于阻止禁用 Token 发起模型请求。",
+  "createdAt": "2026-08-27T18:04:09.946Z",
+  "updatedAt": "2026-08-27T18:04:09.946Z",
+  "tags": [
+    "database",
+    "newapi",
+    "token",
+    "token-status"
+  ],
+  "source": "turn-reflection"
+}

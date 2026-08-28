@@ -1,0 +1,13 @@
+{
+  "id": "61c8c1b4",
+  "content": "项目修改必须先读取现有代码并保持最小范围，不覆盖用户已有未提交改动；新增数据库表或字段时同步更新 docs/backend/backend-database.md。",
+  "createdAt": "2026-08-27T18:09:59.089Z",
+  "updatedAt": "2026-08-27T18:09:59.089Z",
+  "tags": [
+    "开发流程",
+    "Git",
+    "数据库",
+    "文档"
+  ],
+  "source": "turn-reflection"
+}

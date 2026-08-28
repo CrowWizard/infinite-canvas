@@ -1,0 +1,12 @@
+{
+  "id": "4cebf065",
+  "content": "修改代码前必须先读取相关文件并获得用户明确许可；已有工作区修改不得回滚或覆盖，只能在必要范围内追加改动。",
+  "createdAt": "2026-08-27T18:06:39.080Z",
+  "updatedAt": "2026-08-27T18:06:39.080Z",
+  "tags": [
+    "workflow",
+    "git",
+    "editing"
+  ],
+  "source": "turn-reflection"
+}

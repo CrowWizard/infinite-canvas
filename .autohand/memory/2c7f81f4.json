@@ -1,0 +1,12 @@
+{
+  "id": "2c7f81f4",
+  "content": "项目后端使用 Go、Gin、GORM 和 PostgreSQL；接口遵循 { code, data, msg } 响应结构，并按 handler、service、repository、model 分层。",
+  "createdAt": "2026-08-27T18:09:58.744Z",
+  "updatedAt": "2026-08-27T18:12:11.470Z",
+  "tags": [
+    "backend",
+    "go",
+    "postgresql"
+  ],
+  "source": "turn-reflection"
+}

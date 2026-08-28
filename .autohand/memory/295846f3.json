@@ -1,0 +1,12 @@
+{
+  "id": "295846f3",
+  "content": "该工作区曾出现 Go 链接器内部 `cmd/internal/goobj` 的 slice bounds panic；后续完整构建失败时，应区分工具链/缓存异常与项目源码或依赖编译错误。",
+  "createdAt": "2026-08-27T13:48:50.191Z",
+  "updatedAt": "2026-08-27T13:48:50.191Z",
+  "tags": [
+    "go",
+    "build",
+    "troubleshooting"
+  ],
+  "source": "turn-reflection"
+}

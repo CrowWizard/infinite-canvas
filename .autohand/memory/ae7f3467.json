@@ -1,0 +1,13 @@
+{
+  "id": "ae7f3467",
+  "content": "项目采用同域名静态部署：Nginx 托管 Next.js 静态导出文件，仅将 /api/ 反向代理到 Go 服务；画布详情使用 /canvas?id=项目ID，前端不再依赖 Next.js API 代理路由。",
+  "createdAt": "2026-08-27T17:40:11.922Z",
+  "updatedAt": "2026-08-27T18:12:11.804Z",
+  "tags": [
+    "deployment",
+    "nextjs",
+    "nginx",
+    "routing"
+  ],
+  "source": "turn-reflection"
+}

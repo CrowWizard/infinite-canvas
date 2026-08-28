@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { App, Button } from "antd";
 import { Download, FileUp, Plus } from "lucide-react";
 
@@ -14,8 +14,22 @@ import type { CanvasExportFile } from "./export-types";
 import { useCanvasStore } from "./stores/use-canvas-store";
 import { useCanvasUiStore } from "./stores/use-canvas-ui-store";
 import { exportCanvasProjects } from "./utils/canvas-export";
+import CanvasClientPage from "./[id]/canvas-client-page";
 
 export default function CanvasPage() {
+    return (
+        <Suspense fallback={<div className="h-full bg-background" />}>
+            <CanvasRoute />
+        </Suspense>
+    );
+}
+
+function CanvasRoute() {
+    const projectId = useSearchParams().get("id");
+    return projectId ? <CanvasClientPage projectId={projectId} /> : <CanvasProjectList />;
+}
+
+function CanvasProjectList() {
     const { message } = App.useApp();
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +41,7 @@ export default function CanvasPage() {
     const setDeleteIds = useCanvasUiStore((state) => state.setDeleteProjectIds);
 
     const enterProject = (id: string) => {
-        router.push(`/canvas/${id}`);
+        router.push(`/canvas?id=${encodeURIComponent(id)}`);
     };
     const createAndEnter = () => enterProject(createProject(`无限画布 ${projects.length + 1}`));
     const importCanvas = async (file?: File) => {
