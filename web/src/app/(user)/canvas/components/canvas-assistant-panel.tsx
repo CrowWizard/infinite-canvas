@@ -4,6 +4,7 @@ import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState }
 import {
     History,
     Bot,
+    Copy,
     PanelRightClose,
     Plus,
     RotateCcw,
@@ -19,6 +20,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { ImageGenerationPending } from "@/components/image-generation-pending";
+import { useCopyText } from "@/hooks/use-copy-text";
 import { canvasThemes } from "@/lib/canvas-theme";
 import { cn } from "@/lib/utils";
 import { imageToDataUrl } from "@/services/image-storage";
@@ -554,6 +556,7 @@ function AssistantMarkdown({ children }: { children: string }) {
 
 function AssistantMessages({ messages, onRetry }: { messages: CanvasAssistantMessage[]; onRetry: (message: CanvasAssistantMessage) => void }) {
     const theme = canvasThemes[useThemeStore((state) => state.theme)];
+    const copyText = useCopyText();
 
     return (
         <>
@@ -582,8 +585,11 @@ function AssistantMessages({ messages, onRetry }: { messages: CanvasAssistantMes
                             </div>
                         ) : null}
                         {running ? <ImageGenerationPending compact label={message.activity || "正在执行"} className="w-[250px] rounded-2xl border" /> : null}
-                        {message.role === "assistant" && !running && message.text ? (
-                            <Button shape="circle" size="small" style={{ borderColor: theme.node.stroke }} icon={<RotateCcw className="size-3.5" />} onClick={() => onRetry(message)} title="重试" />
+                        {!running && message.text ? (
+                            <div className="flex gap-1">
+                                <Button shape="circle" size="small" style={{ borderColor: theme.node.stroke }} icon={<Copy className="size-3.5" />} onClick={() => copyText(message.text, "消息已复制")} title="复制" />
+                                {message.role === "assistant" ? <Button shape="circle" size="small" style={{ borderColor: theme.node.stroke }} icon={<RotateCcw className="size-3.5" />} onClick={() => onRetry(message)} title="重试" /> : null}
+                            </div>
                         ) : null}
                     </div>
                 );
