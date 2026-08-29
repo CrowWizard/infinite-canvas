@@ -70,6 +70,15 @@ func GetUserByUsername(username string) (model.User, bool, error) {
 	return findUser(db, "username = ?", username)
 }
 
+// GetUserByNewAPIUserID queries a user by its NewAPI identity.
+func GetUserByNewAPIUserID(id string) (model.User, bool, error) {
+	db, err := DB()
+	if err != nil {
+		return model.User{}, false, err
+	}
+	return findUser(db, "new_api_user_id = ?", id)
+}
+
 // SaveUser 保存用户信息。
 func SaveUser(user model.User) (model.User, error) {
 	db, err := DB()

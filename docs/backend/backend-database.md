@@ -382,3 +382,10 @@ S3/R2 与 WebDAV 共用的媒体文件索引表，不保存画布、素材列表
 | `admin_adjust` | 后台手动调整 |
 | `ai_consume` | 调用后端模型接口消费 |
 | `ai_refund` | 后端模型接口调用失败返还 |
+
+
+## NewAPI 与模型权限
+
+- `user_new_api_tokens` 保存用户同步的 NewAPI Token 元数据；`token_key` 仅以加密密文保存，管理接口不返回明文。
+- `ai_models` 保存全局模型 ID、显示名称、类型、Provider、启用状态、排序和 Capabilities JSON。
+- `user_ai_models` 保存用户与全局模型的关联及用户启用状态，`user_id` 与 `ai_model_id` 组成唯一约束。

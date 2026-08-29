@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/tigerowo/infinite-canvas/config"
 	"github.com/tigerowo/infinite-canvas/model"
 	"github.com/tigerowo/infinite-canvas/service"
 )
@@ -48,7 +49,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	var request loginRequest
 	_ = json.NewDecoder(r.Body).Decode(&request)
-	session, err := service.Login(request.Username, request.Password)
+	var session model.AuthSession
+	var err error
+	if strings.TrimSpace(request.Username) == strings.TrimSpace(config.Cfg.AdminUsername) {
+		session, err = service.Login(request.Username, request.Password)
+	} else {
+		session, err = service.LoginWithNewAPI(request.Username, request.Password)
+	}
 	if err != nil {
 		FailError(w, err)
 		return
@@ -183,4 +190,18 @@ func AdminDeleteUser(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 	OK(w, true)
+}
+
+func SyncNewAPI(w http.ResponseWriter, r *http.Request) {
+	user, ok := service.UserFromContext(r.Context())
+	if !ok || user.Role == model.UserRoleGuest {
+		FailWithStatus(w, http.StatusUnauthorized, "未登录")
+		return
+	}
+	status, err := service.SyncCurrentUserNewAPI(user.ID)
+	if err != nil {
+		FailError(w, err)
+		return
+	}
+	OK(w, status)
 }

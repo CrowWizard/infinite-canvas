@@ -349,3 +349,52 @@ export type StorageCapacityResult = {
 export async function measureAdminStorageProvider(token: string, payload: { index: number; provider: AdminStorageProvider }) {
     return apiPost<StorageCapacityResult>("/api/admin/storage/measure", payload, token);
 }
+
+export type AdminAIModel = {
+    id: string;
+    modelId: string;
+    displayName: string;
+    modelType: "text" | "image" | "video" | "audio";
+    provider: string;
+    enabled: boolean;
+    sortOrder: number;
+    capabilities: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type AdminNewAPIToken = {
+    tokenId: string;
+    name: string;
+    enabled: boolean;
+    isDefault: boolean;
+    expiredAt: string;
+    lastSyncedAt: string;
+};
+
+export type AdminUserModelInfo = AdminAIModel & { userEnabled?: boolean };
+
+export type AdminUserModelData = {
+    tokens: AdminNewAPIToken[];
+    models: AdminUserModelInfo[];
+};
+
+export async function fetchAdminModels(token: string) {
+    return apiGet<AdminAIModel[]>("/api/admin/models", undefined, token);
+}
+
+export async function saveAdminModel(token: string, model: Partial<AdminAIModel>) {
+    return apiPost<AdminAIModel>("/api/admin/models", model, token);
+}
+
+export async function deleteAdminModel(token: string, id: string) {
+    return apiDelete<boolean>(`/api/admin/models/${encodeURIComponent(id)}`, token);
+}
+
+export async function fetchAdminUserModels(token: string, userId: string) {
+    return apiGet<AdminUserModelData>(`/api/admin/users/${encodeURIComponent(userId)}/models`, undefined, token);
+}
+
+export async function saveAdminUserModel(token: string, userId: string, aiModelId: string, enabled: boolean) {
+    return apiPost(`/api/admin/users/${encodeURIComponent(userId)}/models`, { aiModelId, enabled }, token);
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { ProTable, type ProColumns } from "@ant-design/pro-components";
 import { Avatar, Button, Card, Col, Divider, Flex, Form, Input, InputNumber, Modal, Row, Select, Space, Tag, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 import type { AdminUser } from "@/services/api/admin";
 import { useAdminUsers } from "./use-admin-users";
+import { UserSyncDetail } from "./user-sync-detail";
 
 type UserFormValues = Partial<AdminUser> & { password?: string };
 
@@ -27,6 +28,7 @@ export default function AdminUsersPage() {
     const [keywordText, setKeywordText] = useState(keyword);
     const [editingUser, setEditingUser] = useState<Partial<AdminUser> | null>(null);
     const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null);
+    const [detailUser, setDetailUser] = useState<AdminUser | null>(null);
 
     useEffect(() => setKeywordText(keyword), [keyword]);
 
@@ -99,10 +101,13 @@ export default function AdminUsersPage() {
         {
             title: "操作",
             key: "actions",
-            width: 96,
+            width: 132,
             align: "right",
             render: (_, item) => (
                 <Space size={4}>
+                    <Tooltip title="Token 与模型">
+                        <Button type="text" size="small" icon={<EyeOutlined />} onClick={() => setDetailUser(item)} />
+                    </Tooltip>
                     <Tooltip title="编辑">
                         <Button type="text" size="small" icon={<EditOutlined />} onClick={() => setEditingUser(item)} />
                     </Tooltip>
@@ -256,6 +261,7 @@ export default function AdminUsersPage() {
             >
                 确定删除「{deletingUser?.displayName || deletingUser?.username}」吗？删除后该账号将无法继续登录。
             </Modal>
+            <UserSyncDetail user={detailUser} onClose={() => setDetailUser(null)} />
         </main>
     );
 }

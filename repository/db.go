@@ -63,6 +63,10 @@ func DB() (*gorm.DB, error) {
 			&model.CanvasImageTask{},
 			&model.CanvasAudioTask{},
 			&model.CanvasProject{},
+			&model.UserNewAPICredential{},
+			&model.UserNewAPIToken{},
+			&model.AIModel{},
+			&model.UserAIModel{},
 		)
 	})
 	return db, dbErr

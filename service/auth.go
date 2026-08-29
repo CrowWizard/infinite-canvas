@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/tigerowo/infinite-canvas/config"
 	"github.com/tigerowo/infinite-canvas/model"
 	"github.com/tigerowo/infinite-canvas/repository"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -587,4 +587,86 @@ func WarnDefaultSecurityConfig() {
 	if config.Cfg.AdminUsername == "admin" && config.Cfg.AdminPassword == "infinite-canvas" {
 		log.Println("WARNING: using default admin credentials, please set ADMIN_USERNAME and ADMIN_PASSWORD to safer values before deployment")
 	}
+}
+
+// LoginWithNewAPI authenticates against NewAPI and issues the local session.
+func LoginWithNewAPI(username, password string) (model.AuthSession, error) {
+	username = strings.TrimSpace(username)
+	if username == "" || password == "" {
+		return model.AuthSession{}, safeMessageError{message: "用户名和密码不能为空"}
+	}
+	client, err := NewAPI()
+	if err != nil {
+		return model.AuthSession{}, err
+	}
+	login, err := client.Login(username, password)
+	if err != nil {
+		log.Printf("NewAPI login failed base_url=%s username=%q err=%v", client.BaseURL, username, err)
+		return model.AuthSession{}, safeMessageError{message: "NewAPI 登录失败，请查看后端日志"}
+	}
+	user, ok, err := repository.GetUserByNewAPIUserID(login.ID)
+	if err != nil {
+		return model.AuthSession{}, err
+	}
+	if !ok {
+		user, ok, err = repository.GetUserByUsername(username)
+		if err != nil {
+			return model.AuthSession{}, err
+		}
+	}
+	if !ok {
+		user = model.User{ID: newID("user"), Username: username, Role: model.UserRoleUser, Status: model.UserStatusActive, AffCode: newAffCode(), CreatedAt: now()}
+	} else if user.Status == model.UserStatusBan {
+		return model.AuthSession{}, safeMessageError{message: "账号已被禁用"}
+	}
+	user.NewAPIUserID = login.ID
+	user.Username = username
+	user.LastLoginAt, user.UpdatedAt = now(), now()
+	user, err = repository.SaveUser(user)
+	if err != nil {
+		return model.AuthSession{}, err
+	}
+	ciphertext, nonce, err := encryptCredential(password)
+	if err != nil {
+		return model.AuthSession{}, err
+	}
+	cookieCiphertext, cookieNonce, err := encryptCredential(login.Cookie)
+	if err != nil {
+		return model.AuthSession{}, err
+	}
+	_, err = repository.SaveUserNewAPICredential(model.UserNewAPICredential{
+		UserID: user.ID, NewAPIUsername: login.Username, PasswordCiphertext: ciphertext,
+		PasswordNonce: nonce, PasswordVersion: 1, SessionCookieCiphertext: cookieCiphertext,
+		SessionCookieNonce: cookieNonce, ReauthRequired: false, LastSyncAt: now(), UpdatedAt: now(),
+	})
+	if err != nil {
+		return model.AuthSession{}, err
+	}
+	if err := syncNewAPITokens(client, user.ID, login.ID, login.Cookie); err != nil {
+		return model.AuthSession{}, err
+	}
+	if err := repository.EnsureUserAIModels(user.ID); err != nil {
+		return model.AuthSession{}, err
+	}
+	return newSession(user)
+}
+
+func syncNewAPITokens(client *NewAPIClient, userID, newAPIUserID, session string) error {
+	tokens, err := client.Tokens(session, "", newAPIUserID)
+	if err != nil {
+		return err
+	}
+	stored := make([]model.UserNewAPIToken, 0, len(tokens))
+	for _, token := range tokens {
+		ciphertext, nonce, err := encryptCredential(token.Key)
+		if err != nil {
+			return err
+		}
+		stored = append(stored, model.UserNewAPIToken{
+			ID: newID("newapi_token"), UserID: userID, NewAPITokenID: token.ID, Name: token.Name,
+			TokenCiphertext: ciphertext, TokenNonce: nonce, IsEnabled: token.Enabled, IsDefault: token.Default,
+			ExpiredAt: token.ExpiredAt, LastSyncedAt: now(), CreatedAt: now(), UpdatedAt: now(),
+		})
+	}
+	return repository.ReplaceUserNewAPITokens(userID, stored)
 }

@@ -28,6 +28,10 @@ export function ModelPicker({ config, value, channelId, capability, onChange, cl
                 ? config.publicChannels.map((channel) => ({ id: channel.id, protocol: channel.protocol, name: channel.name || "云端渠道", baseUrl: channel.baseUrl, models: channel.models }))
                 : normalizeLocalChannels(config).map((channel) => ({ id: channel.id, protocol: channel.protocol, name: channel.name || "本地渠道", baseUrl: channel.baseUrl, models: channel.models }));
         const models = channels.flatMap((channel) => (channel.models ?? []).map((model) => ({ key: `${channel.id}::${model}`, channelId: channel.id, channelName: channel.name, protocol: channel.protocol, model })));
+        if (config.channelMode === "remote" && !models.length) {
+            const remoteModels = capability === "image" ? config.imageModels : capability === "video" ? config.videoModels : capability === "audio" ? config.audioModels : capability === "text" ? config.textModels : config.models;
+            return remoteModels.map((model) => ({ key: model, channelId: "", channelName: "NewAPI", protocol: "openai" as const, model }));
+        }
         if (!capability) return models;
         return models.filter((item) => filterModelsByCapability([item.model], capability, item.protocol || "").length > 0);
     }, [capability, config]);

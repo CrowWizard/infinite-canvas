@@ -29,10 +29,18 @@ export async function login(payload: AuthPayload) {
     return apiPost<AuthSession>("/api/auth/login", payload);
 }
 
-export async function register(payload: AuthPayload) {
-    return apiPost<AuthSession>("/api/auth/register", payload);
-}
-
 export async function fetchCurrentUser(token?: string) {
     return apiGet<AuthUser>("/api/auth/me", undefined, token);
+}
+
+export type NewAPISyncStatus = {
+    newapiUsername: string;
+    tokenCount: number;
+    lastSyncAt: string;
+    reauthRequired: boolean;
+    lastError: string;
+};
+
+export function syncNewAPI(token: string) {
+    return apiPost<NewAPISyncStatus>("/api/auth/newapi/sync", {}, token);
 }

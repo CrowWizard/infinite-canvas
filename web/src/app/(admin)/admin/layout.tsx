@@ -1,6 +1,6 @@
 "use client";
 
-import { AuditOutlined, FileTextOutlined, HomeOutlined, LogoutOutlined, PictureOutlined, SettingOutlined, TransactionOutlined, UserOutlined } from "@ant-design/icons";
+import { AuditOutlined, FileTextOutlined, HomeOutlined, KeyOutlined, LogoutOutlined, PictureOutlined, SettingOutlined, SlidersOutlined, TeamOutlined, TransactionOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Flex, Layout, Menu, Typography, theme } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,6 +13,9 @@ import { useUserStore } from "@/stores/use-user-store";
 
 const adminMenus = [
     { key: "/admin/users", icon: <UserOutlined />, label: "用户管理" },
+    { key: "/admin/newapi-tokens", icon: <KeyOutlined />, label: "用户 Token" },
+    { key: "/admin/user-models", icon: <TeamOutlined />, label: "用户模型" },
+    { key: "/admin/models", icon: <SlidersOutlined />, label: "模型管理" },
     { key: "/admin/credit-logs", icon: <TransactionOutlined />, label: "算力点日志" },
     { key: "/admin/ai-logs", icon: <AuditOutlined />, label: "AI 日志" },
     { key: "/admin/prompts", icon: <FileTextOutlined />, label: "提示词管理" },
@@ -37,11 +40,33 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             : pathname.startsWith("/admin/ai-logs")
               ? "/admin/ai-logs"
               : pathname.startsWith("/admin/credit-logs")
-              ? "/admin/credit-logs"
-              : pathname.startsWith("/admin/users")
-                ? "/admin/users"
-                : "";
-    const pageTitle = pathname.startsWith("/admin/settings") ? "系统设置" : pathname.startsWith("/admin/assets") ? "素材库管理" : pathname.startsWith("/admin/prompts") ? "提示词管理" : pathname.startsWith("/admin/ai-logs") ? "AI 日志" : pathname.startsWith("/admin/credit-logs") ? "算力点日志" : "用户管理";
+                ? "/admin/credit-logs"
+                : pathname.startsWith("/admin/users")
+                  ? "/admin/users"
+                  : pathname.startsWith("/admin/newapi-tokens")
+                    ? "/admin/newapi-tokens"
+                    : pathname.startsWith("/admin/user-models")
+                      ? "/admin/user-models"
+                      : pathname.startsWith("/admin/models")
+                        ? "/admin/models"
+                        : "";
+    const pageTitle = pathname.startsWith("/admin/settings")
+        ? "系统设置"
+        : pathname.startsWith("/admin/assets")
+          ? "素材库管理"
+          : pathname.startsWith("/admin/prompts")
+            ? "提示词管理"
+            : pathname.startsWith("/admin/ai-logs")
+              ? "AI 日志"
+              : pathname.startsWith("/admin/credit-logs")
+                ? "算力点日志"
+                : pathname.startsWith("/admin/newapi-tokens")
+                  ? "用户 Token"
+                  : pathname.startsWith("/admin/user-models")
+                    ? "用户模型"
+                    : pathname.startsWith("/admin/models")
+                      ? "模型管理"
+                      : "用户管理";
 
     useEffect(() => {
         if (!isReady) return;

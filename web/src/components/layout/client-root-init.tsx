@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { App } from "antd";
 
+import { fetchModelDirectory } from "@/services/api/models";
 import { fetchUserConfig } from "@/services/api/user-config";
 import { defaultUserStorageProvider, defaultUserWebDAVStorageProvider, saveUserStorageProvider, saveUserWebDAVStorageProvider } from "@/services/image-storage";
 import { useConfigStore, type AiConfig } from "@/stores/use-config-store";
@@ -34,10 +35,23 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
     }, [hydrateUser, isLoginPage]);
 
     useEffect(() => {
-        if (!token || user?.role !== "admin" || adminRemoteTokenRef.current === token) return;
+        if (!token || !user?.id || adminRemoteTokenRef.current === token) return;
         adminRemoteTokenRef.current = token;
         if (channelMode !== "remote") updateConfig("channelMode", "remote");
-    }, [channelMode, token, updateConfig, user?.role]);
+        void fetchModelDirectory(token)
+            .then((directory) => {
+                const textModels = directory.text.map((item) => item.modelId);
+                const imageModels = directory.image.map((item) => item.modelId);
+                const videoModels = directory.video.map((item) => item.modelId);
+                const audioModels = directory.audio.map((item) => item.modelId);
+                updateConfig("models", [...textModels, ...imageModels, ...videoModels, ...audioModels]);
+                updateConfig("textModels", textModels);
+                updateConfig("imageModels", imageModels);
+                updateConfig("videoModels", videoModels);
+                updateConfig("audioModels", audioModels);
+            })
+            .catch(() => {});
+    }, [channelMode, token, updateConfig, user?.id]);
 
     useEffect(() => {
         if (!token || !user?.id) return;
@@ -47,6 +61,7 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
                 const syncWebDAV = payload.modelConfig?.syncWebDAVStorageConfig === true;
                 if (payload.modelConfig) {
                     Object.entries(payload.modelConfig)
+                        .filter(([key]) => !["baseUrl", "apiKey", "models", "imageModels", "videoModels", "textModels", "audioModels", "localChannels", "publicChannels"].includes(key))
                         .forEach(([key, value]) => updateConfig(key as keyof AiConfig, value as never));
                 }
                 updateConfig("syncStorageConfig", syncS3);

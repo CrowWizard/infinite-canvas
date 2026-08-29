@@ -733,6 +733,16 @@ POST /api/admin/login
 ```text
 POST /api/v1/images/generations
 POST /api/v1/images/edits
+POST /api/ai/responses
+POST /api/ai/chat/completions
+POST /api/ai/images/generations
+POST /api/ai/images/edits
+POST /api/ai/videos/generations
+GET  /api/ai/videos/:id
+GET  /api/ai/videos/:id/content
+POST /api/ai/audio/speech
+
+兼容保留：
 POST /api/v1/responses
 POST /api/v1/chat/completions
 POST /api/v1/audio/speech

@@ -16,10 +16,9 @@ func New() *gin.Engine {
 	api.GET("/health", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok")
 	})
-	api.POST("/auth/register", gin.WrapF(handler.Register))
 	api.POST("/auth/login", gin.WrapF(handler.Login))
-	api.GET("/auth/linux-do/authorize", gin.WrapF(handler.LinuxDoAuthorize))
-	api.GET("/auth/linux-do/callback", gin.WrapF(handler.LinuxDoCallback))
+	api.POST("/auth/newapi/sync", middleware.UserAuth, gin.WrapF(handler.SyncNewAPI))
+	api.GET("/models", middleware.UserAuth, gin.WrapF(handler.ListModels))
 	api.GET("/auth/me", middleware.OptionalAuth, gin.WrapF(handler.CurrentUser))
 	api.GET("/settings", gin.WrapF(handler.Settings))
 	api.GET("/storage/config", gin.WrapF(handler.StorageConfig))
@@ -35,7 +34,20 @@ func New() *gin.Engine {
 	api.GET("/files/:id/content", func(c *gin.Context) {
 		handler.FileContent(c.Writer, c.Request, c.Param("id"))
 	})
-	api.POST("/ai/direct-request", gin.WrapF(handler.PrepareDirectAIRequest))
+	api.POST("/ai/direct-request", middleware.UserAuth, gin.WrapF(handler.PrepareDirectAIRequest))
+	ai := api.Group("/ai", middleware.UserAuth)
+	ai.POST("/chat/completions", gin.WrapF(handler.AIChatCompletions))
+	ai.POST("/responses", gin.WrapF(handler.AIResponses))
+	ai.POST("/images/generations", gin.WrapF(handler.AIImagesGenerations))
+	ai.POST("/images/edits", gin.WrapF(handler.AIImagesEdits))
+	ai.POST("/videos/generations", gin.WrapF(handler.AIVideos))
+	ai.GET("/videos/:id", func(c *gin.Context) {
+		handler.AIVideo(c.Writer, c.Request, c.Param("id"))
+	})
+	ai.GET("/videos/:id/content", func(c *gin.Context) {
+		handler.AIVideoContent(c.Writer, c.Request, c.Param("id"))
+	})
+	ai.POST("/audio/speech", gin.WrapF(handler.AIAudioSpeech))
 	anonymousFiles := api.Group("/anonymous/files", middleware.AnonymousStorage)
 	anonymousFiles.POST("/session", func(c *gin.Context) { c.Status(http.StatusNoContent) })
 	anonymousFiles.POST("", gin.WrapF(handler.UploadFile))
@@ -127,6 +139,17 @@ func New() *gin.Engine {
 	})
 	admin.DELETE("/users/:id", func(c *gin.Context) {
 		handler.AdminDeleteUser(c.Writer, c.Request, c.Param("id"))
+	})
+	admin.GET("/users/:id/models", func(c *gin.Context) {
+		handler.AdminUserModels(c.Writer, c.Request, c.Param("id"))
+	})
+	admin.POST("/users/:id/models", func(c *gin.Context) {
+		handler.AdminSaveUserModel(c.Writer, c.Request, c.Param("id"))
+	})
+	admin.GET("/models", gin.WrapF(handler.AdminModels))
+	admin.POST("/models", gin.WrapF(handler.AdminSaveModel))
+	admin.DELETE("/models/:id", func(c *gin.Context) {
+		handler.AdminDeleteModel(c.Writer, c.Request, c.Param("id"))
 	})
 	admin.GET("/credit-logs", gin.WrapF(handler.AdminCreditLogs))
 	admin.POST("/credit-logs", gin.WrapF(handler.AdminSaveCreditLog))
