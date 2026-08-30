@@ -203,6 +203,7 @@ export type CanvasAgentPhase =
 
 export type CanvasAgentConfig = {
     textApiMode: "chat" | "responses";
+    autoGenerateMedia: boolean;
     imageQuality: string;
     imageSize: string;
     videoQuality: string;

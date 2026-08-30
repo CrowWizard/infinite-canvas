@@ -410,8 +410,9 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
     const [canvasNow, setCanvasNow] = useState(Date.now());
     const resolvedAgentConfig = useMemo<CanvasAgentConfig>(
         () =>
-            agentConfig ? { textApiMode: "chat", ...agentConfig } : {
+            agentConfig ? { textApiMode: "chat", autoGenerateMedia: false, ...agentConfig } : {
                 textApiMode: "chat",
+                autoGenerateMedia: false,
                 imageQuality: effectiveConfig.quality,
                 imageSize: effectiveConfig.size,
                 videoQuality: effectiveConfig.vquality,
@@ -2670,7 +2671,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                     const sourceReference: ReferenceImage[] = sourceNode?.metadata?.content
                         ? [{ id: sourceNode.id, name: `image-${sourceNode.id}.png`, type: sourceNode.metadata.mimeType || "image/png", dataUrl: sourceNode.metadata.content, storageKey: sourceNode.metadata.storageKey }]
                         : [];
-                    const referenceImages = [...sourceReference, ...generationContext.referenceImages];
+                    const referenceImages = [...generationContext.referenceImages, ...sourceReference];
                     const panoramaPrompt = buildPanoramaPrompt(effectivePrompt, referenceImages.length > 0);
                     const panoramaGenerationConfig = { ...generationConfig, size: PANORAMA_IMAGE_SIZE };
                     const count = getGenerationCount(panoramaGenerationConfig.count);
@@ -2818,7 +2819,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                         isImageNode && sourceNode?.metadata?.content
                             ? [{ id: sourceNode.id, name: `image-${sourceNode.id}.png`, type: sourceNode.metadata.mimeType || "image/png", dataUrl: sourceNode.metadata.content, storageKey: sourceNode.metadata.storageKey }]
                             : [];
-                    const referenceImages = sourceReference.length ? sourceReference : generationContext.referenceImages;
+                    const referenceImages = [...generationContext.referenceImages, ...sourceReference];
                     const generationType = referenceImages.length ? ("edit" as const) : ("generation" as const);
                     const generationMetadata = buildImageGenerationMetadata(generationType, generationConfig, count, referenceImages);
                     const parentConfig = NODE_DEFAULT_SIZE[isConfigNode ? CanvasNodeType.Config : isImageNode ? CanvasNodeType.Image : CanvasNodeType.Text];
@@ -3090,9 +3091,10 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                 connections: connectionsRef.current,
                 selectedNodeIds: selectedNodeIdsRef.current,
                 config: agentEffectiveConfig,
+                autoGenerateMedia: resolvedAgentConfig.autoGenerateMedia,
                 agentState,
             }),
-        [agentEffectiveConfig, currentProject?.title, projectId],
+        [agentEffectiveConfig, currentProject?.title, projectId, resolvedAgentConfig.autoGenerateMedia],
     );
 
     const executeCanvasAgentAction = useCallback(
@@ -3238,6 +3240,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                         imageSize: agentEffectiveConfig.size,
                         videoQuality: agentEffectiveConfig.vquality,
                         videoSize: agentEffectiveConfig.videoSize,
+                        autoGenerateMedia: resolvedAgentConfig.autoGenerateMedia,
                         imageCount: 1,
                         videoSeconds: agentEffectiveConfig.videoSeconds,
                         videoGenerateAudio: agentEffectiveConfig.videoGenerateAudio,
@@ -3495,6 +3498,19 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                     commitConnections([...connectionsRef.current, ...createdConnections]);
                     selectOnly(node.id);
 
+                    if (!resolvedAgentConfig.autoGenerateMedia) {
+                        return {
+                            ok: true,
+                            message: "媒体节点已创建并完成参数配置，尚未提交生成",
+                            submitted: false,
+                            nodeId: node.id,
+                            createdNodeIds: [node.id],
+                            connectionIds: createdConnections.map((connection) => connection.id),
+                            type: node.type,
+                            status: "idle",
+                        };
+                    }
+
                     await handleGenerateNode(node.id, mode, prompt);
                     await new Promise<void>((resolve) => setTimeout(resolve, 0));
                     const generatedNode = getNode(node.id) || node;
@@ -3516,6 +3532,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                     }
                     return {
                         ok: true,
+                        submitted: true,
                         nodeId: node.id,
                         createdNodeIds,
                         connectionIds: createdConnections.map((connection) => connection.id),
@@ -3528,7 +3545,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                 return { ok: false, code: "tool_error", message: error instanceof Error ? error.message : "画布工具执行失败" };
             }
         },
-        [agentEffectiveConfig, createGroupFromSelection, currentProject?.title, deleteConnection, deleteNodes, getCanvasCenter, handleGenerateNode, isAiConfigReady, projectId, renameProject, updateProject],
+        [agentEffectiveConfig, createGroupFromSelection, currentProject?.title, deleteConnection, deleteNodes, getCanvasCenter, handleGenerateNode, isAiConfigReady, projectId, renameProject, resolvedAgentConfig.autoGenerateMedia, updateProject],
     );
 
     const handleRetryNode = useCallback(

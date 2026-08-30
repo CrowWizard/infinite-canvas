@@ -8,12 +8,13 @@ import {
     PanelRightClose,
     Plus,
     RotateCcw,
+    Settings2,
     Sparkles,
     Trash2,
     Video,
     X,
 } from "lucide-react";
-import { App, Button, Modal, Tooltip } from "antd";
+import { App, Button, Modal, Switch, Tooltip } from "antd";
 import { motion } from "motion/react";
 import { nanoid } from "nanoid";
 import ReactMarkdown, { type Components } from "react-markdown";
@@ -113,6 +114,7 @@ export function CanvasAssistantPanel({
     const [isRunning, setIsRunning] = useState(false);
     const [checkedChatIds, setCheckedChatIds] = useState<string[]>([]);
     const [deleteChatIds, setDeleteChatIds] = useState<string[]>([]);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const [closing, setClosing] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [composerReferenceIds, setComposerReferenceIds] = useState<string[]>([]);
@@ -484,6 +486,9 @@ export function CanvasAssistantPanel({
                                 }}
                             />
                         </Tooltip>
+                        <Tooltip title="Agent 设置">
+                            <Button type="text" shape="circle" className="!h-8 !w-8 !min-w-8" style={iconButtonStyle} icon={<Settings2 className="size-4" />} onClick={() => setSettingsOpen(true)} />
+                        </Tooltip>
                         <Tooltip title="收起对话">
                             <Button type="text" shape="circle" className="!h-8 !w-8 !min-w-8" style={iconButtonStyle} icon={<PanelRightClose className="size-4" />} onClick={collapse} />
                         </Tooltip>
@@ -560,6 +565,23 @@ export function CanvasAssistantPanel({
                         />
                     </>
                 ) : null}
+
+                <Modal
+                    title="Agent 设置"
+                    open={settingsOpen}
+                    centered
+                    width={520}
+                    onCancel={() => setSettingsOpen(false)}
+                    footer={<Button type="primary" onClick={() => setSettingsOpen(false)}>完成</Button>}
+                >
+                    <div className="flex items-center justify-between gap-6 py-2">
+                        <div className="min-w-0">
+                            <div className="text-sm font-medium">自动生成图片/视频/音频</div>
+                            <div className="mt-1 text-xs leading-5 opacity-55">开启后，Agent 可直接提交图片/视频/音频生成，无需再次确认</div>
+                        </div>
+                        <Switch checked={agentConfig.autoGenerateMedia} onChange={(autoGenerateMedia) => onAgentConfigChange({ autoGenerateMedia })} />
+                    </div>
+                </Modal>
 
                 <Modal
                     title="删除对话记录？"

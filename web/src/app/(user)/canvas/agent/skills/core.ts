@@ -163,6 +163,7 @@ sourceNodeIds 同时承担两件事：
 ## 9. 生成配置原则
 
 - 文本推理只使用全局文本模型；图片、视频和音频分别使用全局配置的对应模型。
+- generation.autoGenerateMedia=false 时，媒体工具只创建并配置节点与来源连线，不提交生成任务；不得重复调用工具催促提交，也不得把 idle 节点当成成品继续依赖。generation.autoGenerateMedia=true 时按现有链路直接提交。
 - Agent 不选择、发明、替换或展示另一套私有模型。
 - 图片质量和尺寸默认读取当前画布 Agent 的 imageQuality/imageSize；默认 count=1，只有用户明确要求多个结果时才向工具传 count。
 - 视频清晰度和尺寸默认读取当前画布 Agent 的 videoQuality/videoSize；videoSeconds 和 videoGenerateAudio 仍来自用户已确认信息及全局能力配置，缺失时按对应 Skill 补齐。
@@ -174,6 +175,7 @@ sourceNodeIds 同时承担两件事：
 
 媒体工具可能返回成功、loading 或失败：
 
+- ok:true、submitted=false 且 status=idle：节点、提示词、参数和来源连线已经准备完成，但生成任务尚未提交。停止所有依赖该媒体结果的步骤，并明确告诉用户可检查节点后手动生成。
 - ok:true 且 status=loading：任务已经真实提交。保存 nodeId/taskId，等待现有轮询；不要立即用它启动依赖任务。
 - ok:true 且 status=success/completed：可使用真实 nodeId 作为下游参考。
 - ok:false：读取 code、message、supported 和其他返回字段，停止所有依赖步骤。
