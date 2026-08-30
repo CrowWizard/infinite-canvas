@@ -311,6 +311,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
     const historyRef = useRef<{ past: CanvasHistoryEntry[]; future: CanvasHistoryEntry[] }>({ past: [], future: [] });
     const lastHistoryRef = useRef<CanvasHistoryEntry | null>(null);
     const historyCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const historyCleanupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const viewportSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const sidePanelSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const focusAnimationRef = useRef<number | null>(null);
@@ -409,7 +410,8 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
     const [canvasNow, setCanvasNow] = useState(Date.now());
     const resolvedAgentConfig = useMemo<CanvasAgentConfig>(
         () =>
-            agentConfig || {
+            agentConfig ? { textApiMode: "chat", ...agentConfig } : {
+                textApiMode: "chat",
                 imageQuality: effectiveConfig.quality,
                 imageSize: effectiveConfig.size,
                 videoQuality: effectiveConfig.vquality,
@@ -484,6 +486,13 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
         return () => window.removeEventListener("keydown", handlePreviewKeyDown);
     }, [previewNodeId, getBatchGroupNodes]);
 
+    useEffect(() => () => {
+        if (historyCleanupTimerRef.current) {
+            clearTimeout(historyCleanupTimerRef.current);
+            historyCleanupTimerRef.current = null;
+        }
+    }, [projectId]);
+
     useEffect(() => {
         if (!hydrated) return;
         setProjectLoaded(false);
@@ -539,11 +548,19 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
             const current = createHistoryEntry();
             const last = lastHistoryRef.current;
             if (!last) return;
+            const historyDropped = historyRef.current.past.length >= 50;
             historyRef.current.past = [...historyRef.current.past.slice(-49), last];
             historyRef.current.future = [];
             setHistoryState({ canUndo: true, canRedo: false });
             lastHistoryRef.current = current;
             historyCommitTimerRef.current = null;
+            if (historyDropped) {
+                if (historyCleanupTimerRef.current) clearTimeout(historyCleanupTimerRef.current);
+                historyCleanupTimerRef.current = setTimeout(() => {
+                    historyCleanupTimerRef.current = null;
+                    cleanupCanvasFiles();
+                }, 2000);
+            }
         }, 180);
 
         return () => {
@@ -552,7 +569,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                 historyCommitTimerRef.current = null;
             }
         };
-    }, [backgroundMode, connections, createHistoryEntry, nodes, projectLoaded, showImageInfo]);
+    }, [backgroundMode, cleanupCanvasFiles, connections, createHistoryEntry, nodes, projectLoaded, showImageInfo]);
 
     useEffect(() => {
         if (!projectLoaded || historyPausedRef.current) return;
@@ -1002,7 +1019,7 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
             const removedNodes = nodesRef.current.filter((node) => allIds.has(node.id));
             const remainingNodes = nodesRef.current.filter((node) => !allIds.has(node.id));
             const removedKeys = collectImageStorageKeys(removedNodes);
-            const usedKeys = collectImageStorageKeys({ nodes: remainingNodes, assets: useAssetStore.getState().assets });
+            const usedKeys = collectImageStorageKeys({ nodes: remainingNodes, assets: useAssetStore.getState().assets, history: historyRef.current, lastHistory: lastHistoryRef.current });
             const disposableKeys = [...removedKeys].filter((key) => !usedKeys.has(key));
             setChatSessions((sessions) => sessions.map((session) => ({
                 ...session,
@@ -2143,24 +2160,31 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
                 return;
             }
             if (!node.metadata?.content) return message.error("没有可保存的图片");
-            const dataUrl = node.metadata.storageKey ? "" : node.metadata.content;
-            addAsset({
-                kind: "image",
-                title: node.metadata?.prompt?.slice(0, 24) || "画布图片",
-                coverUrl: node.metadata.content,
-                tags: [],
-                source: "Canvas",
-                data: {
-                    dataUrl,
-                    storageKey: node.metadata.storageKey,
-                    width: node.metadata.naturalWidth || node.width,
-                    height: node.metadata.naturalHeight || node.height,
-                    bytes: node.metadata.bytes || getDataUrlByteSize(dataUrl),
-                    mimeType: node.metadata.mimeType || "image/png",
-                },
-                metadata: { source: "canvas", nodeId: node.id, prompt: node.metadata?.prompt },
-            });
-            message.success("已加入我的素材");
+            try {
+                const stored = !node.metadata.storageKey && node.metadata.content.startsWith("blob:") ? await uploadImage(node.metadata.content, { localOnly: true }) : null;
+                const imageUrl = stored?.url || node.metadata.content;
+                const storageKey = stored?.storageKey || node.metadata.storageKey;
+                const dataUrl = storageKey ? "" : imageUrl;
+                addAsset({
+                    kind: "image",
+                    title: node.metadata?.prompt?.slice(0, 24) || "画布图片",
+                    coverUrl: imageUrl,
+                    tags: [],
+                    source: "Canvas",
+                    data: {
+                        dataUrl,
+                        storageKey,
+                        width: stored?.width || node.metadata.naturalWidth || node.width,
+                        height: stored?.height || node.metadata.naturalHeight || node.height,
+                        bytes: stored?.bytes || node.metadata.bytes || getDataUrlByteSize(dataUrl),
+                        mimeType: stored?.mimeType || node.metadata.mimeType || "image/png",
+                    },
+                    metadata: { source: "canvas", nodeId: node.id, prompt: node.metadata?.prompt },
+                });
+                message.success("已加入我的素材");
+            } catch (error) {
+                message.error(error instanceof Error ? `图片加入素材失败：${error.message}` : "图片加入素材失败");
+            }
         },
         [addAsset, message],
     );
@@ -3168,6 +3192,34 @@ function InfiniteCanvasPage({ projectId }: { projectId: string }) {
 
                 if (action.name === "get_selected_nodes") {
                     return { ok: true, nodes: nodesRef.current.filter((node) => selectedNodeIdsRef.current.has(node.id)).map(canvasAgentNodeSummary) };
+                }
+
+                if (action.name === "query_canvas_nodes") {
+                    const nodeId = stringValue("nodeId");
+                    const keyword = stringValue("keyword").toLowerCase();
+                    const type = stringValue("type");
+                    const page = Math.max(1, Math.floor(Number(args.page) || 1));
+                    const pageSize = Math.max(1, Math.min(50, Math.floor(Number(args.pageSize) || 20)));
+                    const filtered = nodesRef.current.filter((node) => {
+                        if (nodeId && node.id !== nodeId) return false;
+                        if (type && node.type !== type) return false;
+                        if (!keyword) return true;
+                        const content = isCanvasImageNodeType(node.type) || node.type === CanvasNodeType.Video || node.type === CanvasNodeType.Audio ? "" : node.metadata?.content || "";
+                        return `${node.title} ${content} ${node.metadata?.prompt || ""}`.toLowerCase().includes(keyword);
+                    });
+                    return {
+                        ok: true,
+                        items: filtered.slice((page - 1) * pageSize, page * pageSize).map((node) => ({
+                            id: node.id,
+                            type: node.type,
+                            title: node.title,
+                            status: node.metadata?.status,
+                            groupId: node.metadata?.groupId,
+                        })),
+                        total: filtered.length,
+                        page,
+                        pageSize,
+                    };
                 }
 
                 if (action.name === "get_generation_config") {

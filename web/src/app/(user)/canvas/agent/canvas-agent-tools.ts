@@ -5,12 +5,14 @@ import type { CanvasAgentPhase } from "../types";
 export const CANVAS_AGENT_ACTION_NAMES = [
     "get_canvas_summary",
     "get_selected_nodes",
+    "query_canvas_nodes",
     "get_node",
     "get_upstream_nodes",
     "get_downstream_nodes",
     "get_connected_nodes",
     "get_generation_config",
     "get_generation_task",
+    "read_skill_file",
     "set_agent_state",
     "create_primary_script_node",
     "create_text_node",
@@ -66,6 +68,7 @@ export type ParsedCanvasAgentJson = {
 const STRING = { type: "string" };
 const STRING_ARRAY = { type: "array", items: { type: "string" }, maxItems: 50 };
 const PHASES: CanvasAgentPhase[] = ["intake", "concept", "script", "breakdown", "references", "storyboard", "video", "audio", "review", "complete"];
+const NODE_TYPES = ["image", "panorama", "text", "config", "video", "audio", "director", "group"];
 const ACTION_NAME_SET = new Set<string>(CANVAS_AGENT_ACTION_NAMES);
 
 function defineTool(name: CanvasAgentActionName, description: string, properties: Record<string, unknown> = {}, required?: string[]): CanvasAgentToolDefinition {
@@ -84,9 +87,18 @@ function defineTool(name: CanvasAgentActionName, description: string, properties
     };
 }
 
+export const CANVAS_AGENT_SKILL_FILE_TOOL = defineTool("read_skill_file", "按相对路径读取当前激活系统 Skill 的附属 Markdown 或文本文件。仅当 SKILL.md 明确引用附属文件时使用。", { skillId: STRING, path: STRING }, ["skillId", "path"]);
+
 export const CANVAS_AGENT_TOOLS: CanvasAgentToolDefinition[] = [
     defineTool("get_canvas_summary", "读取当前画布摘要、节点、连线、模型配置和任务状态。"),
     defineTool("get_selected_nodes", "读取用户当前选中的真实画布节点。"),
+    defineTool("query_canvas_nodes", "当默认上下文中没有目标节点 ID 时，按 ID、关键词或类型只读查询画布节点；找到 ID 后再用 get_node 读取详情。", {
+        nodeId: STRING,
+        keyword: STRING,
+        type: { type: "string", enum: NODE_TYPES },
+        page: { type: "number", minimum: 1 },
+        pageSize: { type: "number", minimum: 1, maximum: 50 },
+    }),
     defineTool("get_node", "按真实节点 ID 读取节点。", { nodeId: STRING }, ["nodeId"]),
     defineTool("get_upstream_nodes", "读取指定节点的所有直接上游节点。", { nodeId: STRING }, ["nodeId"]),
     defineTool("get_downstream_nodes", "读取指定节点的所有直接下游节点。", { nodeId: STRING }, ["nodeId"]),
@@ -176,6 +188,18 @@ export function normalizeCanvasAgentAction(name: unknown, args: unknown, id = na
         case "get_selected_nodes":
         case "get_generation_config":
             break;
+        case "query_canvas_nodes": {
+            const nodeType = optionalString(input.type);
+            if (nodeType && !NODE_TYPES.includes(nodeType)) throw new Error("无效的节点类型");
+            normalized = {
+                ...(optionalString(input.nodeId) ? { nodeId: optionalString(input.nodeId) } : {}),
+                ...(optionalString(input.keyword) ? { keyword: optionalString(input.keyword) } : {}),
+                ...(nodeType ? { type: nodeType } : {}),
+                page: boundedInteger(input.page, 1, Number.MAX_SAFE_INTEGER) || 1,
+                pageSize: boundedInteger(input.pageSize, 1, 50) || 20,
+            };
+            break;
+        }
         case "get_node":
         case "get_upstream_nodes":
         case "get_downstream_nodes":
@@ -184,6 +208,9 @@ export function normalizeCanvasAgentAction(name: unknown, args: unknown, id = na
         case "get_media_task_status":
         case "delete_node":
             normalized = { nodeId: requiredString(input.nodeId, "nodeId") };
+            break;
+        case "read_skill_file":
+            normalized = { skillId: requiredString(input.skillId, "skillId"), path: requiredString(input.path, "path") };
             break;
         case "delete_connection":
             normalized = { connectionId: requiredString(input.connectionId, "connectionId") };
@@ -300,12 +327,14 @@ export function canvasAgentActionLabel(action: CanvasAgentAction) {
     const labels: Record<CanvasAgentActionName, string> = {
         get_canvas_summary: "正在读取画布",
         get_selected_nodes: "正在读取选中节点",
+        query_canvas_nodes: "正在查找画布节点",
         get_node: "正在读取节点",
         get_upstream_nodes: "正在读取上游节点",
         get_downstream_nodes: "正在读取下游节点",
         get_connected_nodes: "正在读取关联节点",
         get_generation_config: "正在读取生成配置",
         get_generation_task: "正在读取任务状态",
+        read_skill_file: "正在读取 Skill 文件",
         set_agent_state: "正在保存创作进度",
         create_primary_script_node: "正在创建主剧本节点",
         create_text_node: "正在创建文本节点",
@@ -330,7 +359,7 @@ export function isCanvasAgentMediaAction(action: CanvasAgentAction) {
 }
 
 export function userLikelyRequestedCanvasAction(text: string) {
-    return /(?:创建|新增|插入|修改|更新|删除|连接|连线|分组|整理|生成|生图|视频|音频|配音|旁白|执行|拆成|拆分|放到画布|开始做)/i.test(text);
+    return /(?:创建|新增|插入|修改|更新|删除|连接|连线|分组|整理|生成|生图|执行|拆成|拆分|放到画布|开始做|(?:做|制作|添加|补充|移除|去掉).{0,8}(?:视频|音频|配音|旁白))/i.test(text);
 }
 
 function extractJsonObject(content: string) {

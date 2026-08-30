@@ -61,6 +61,7 @@ export default function IndexPage() {
     const [assetPickerOpen, setAssetPickerOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [agentConfig, setAgentConfig] = useState<CanvasAgentConfig>(() => ({
+        textApiMode: "chat",
         imageQuality: effectiveConfig.quality,
         imageSize: effectiveConfig.size,
         videoQuality: effectiveConfig.vquality,

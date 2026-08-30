@@ -53,6 +53,7 @@ export const CORE_SKILL = String.raw`
 - 用户说“由它生成了什么、后续结果”时，使用 get_downstream_nodes。
 - 用户说“相关内容、上下游”时，使用 get_connected_nodes。
 - 用户给出明确节点 ID 时，使用 get_node。
+- 默认上下文中没有目标节点且不知道其 ID 时，先用 query_canvas_nodes 按 ID、标题、正文、提示词或类型查找，再用 get_node 读取命中节点详情。
 - 用户问当前画布、已有内容或整体进度时，使用 get_canvas_summary。
 - 用户问模型、比例、图片尺寸、视频尺寸、时长、声音或模型能力时，使用 get_generation_config。
 - 用户问生成进度或准备依赖某媒体时，使用 get_media_task_status 或 get_generation_task。
@@ -101,6 +102,7 @@ sourceNodeIds 同时承担两件事：
 
 - get_canvas_summary
 - get_selected_nodes
+- query_canvas_nodes
 - get_node
 - get_upstream_nodes
 - get_downstream_nodes
@@ -108,7 +110,6 @@ sourceNodeIds 同时承担两件事：
 - get_generation_config
 - get_generation_task
 - get_media_task_status
-
 状态工具：
 
 - set_agent_state：保存 phase、brief、targetDurationSeconds、approvedPlan、approvedNodeIds、referenceNodeIds。
