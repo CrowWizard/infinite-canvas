@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -185,7 +186,7 @@ func (c *NewAPIClient) Tokens(cookie, token, newAPIUserID string) ([]NewAPIToken
 	for _, item := range payload.Items {
 		var id any
 		_ = json.Unmarshal(item.ID, &id)
-		if item.Key == "" || fmt.Sprint(id) == "" {
+		if fmt.Sprint(id) == "" {
 			continue
 		}
 		var expired any
@@ -193,4 +194,74 @@ func (c *NewAPIClient) Tokens(cookie, token, newAPIUserID string) ([]NewAPIToken
 		tokens = append(tokens, NewAPIToken{ID: fmt.Sprint(id), Name: item.Name, Key: item.Key, Enabled: item.Status == 1, Default: item.Default, ExpiredAt: fmt.Sprint(expired)})
 	}
 	return tokens, nil
+}
+
+// TokenKey retrieves the unmasked API key for a token owned by the current user.
+func (c *NewAPIClient) TokenKey(cookie, tokenID, newAPIUserID string) (string, error) {
+	data, err := c.request(http.MethodPost, "/api/token/"+url.PathEscape(tokenID)+"/key", nil, cookie, "", newAPIUserID)
+	if err != nil {
+		return "", err
+	}
+	var payload struct {
+		Key string `json:"key"`
+	}
+	if json.Unmarshal(data, &payload) == nil && strings.TrimSpace(payload.Key) != "" {
+		return normalizeNewAPIKey(payload.Key), nil
+	}
+	var key string
+	if json.Unmarshal(data, &key) == nil && strings.TrimSpace(key) != "" {
+		return normalizeNewAPIKey(key), nil
+	}
+	return "", errors.New("NewAPI 返回的 Token Key 无效")
+}
+
+func normalizeNewAPIKey(key string) string {
+	key = strings.TrimSpace(key)
+	if !strings.HasPrefix(key, "sk-") {
+		key = "sk-" + key
+	}
+	return key
+}
+
+// Models returns the models available to a NewAPI token through its
+// OpenAI-compatible models endpoint.
+func (c *NewAPIClient) Models(token string) ([]string, error) {
+	endpoint := c.BaseURL + "/v1/models"
+	prefix := "<short>"
+	if len(token) >= 4 {
+		prefix = token[:4]
+	}
+	log.Printf("NewAPI models request: endpoint=%s tokenPrefix=%q tokenLength=%d", endpoint, prefix, len(token))
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	resp, err := c.HTTP.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("读取 NewAPI 模型失败: %w", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 4*1024*1024))
+	if err != nil {
+		return nil, fmt.Errorf("读取 NewAPI 模型响应失败: %w", err)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("NewAPI 模型接口 HTTP %s: %s", resp.Status, strings.TrimSpace(string(body)))
+	}
+	var payload struct {
+		Data []struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("NewAPI 模型响应无效: %w", err)
+	}
+	models := make([]string, 0, len(payload.Data))
+	for _, item := range payload.Data {
+		if strings.TrimSpace(item.ID) != "" {
+			models = append(models, item.ID)
+		}
+	}
+	return models, nil
 }

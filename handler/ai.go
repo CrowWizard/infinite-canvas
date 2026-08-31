@@ -20,15 +20,7 @@ import (
 const userModelChannelHeader = "X-User-Model-Channel-ID"
 
 func selectAIRequestChannel(user model.AuthUser, modelName string, channelID string, userChannelID string) (model.ModelChannel, string, error) {
-	userChannelID = strings.TrimSpace(userChannelID)
-	if userChannelID != "" {
-		channel, err := service.SelectUserLocalModelChannelForModel(user.ID, modelName, userChannelID)
-		return channel, userChannelID, err
-	}
-	if !service.UserCanUseRemoteModelChannel(user) {
-		return model.ModelChannel{}, "", fmt.Errorf("当前账号未开放云端渠道")
-	}
-	channel, err := service.SelectModelChannelForModel(modelName, channelID)
+	channel, err := service.NewAPIModelChannel(user, modelName)
 	return channel, "", err
 }
 
@@ -102,7 +94,8 @@ func proxyAIGetRequest(w http.ResponseWriter, r *http.Request, path string) {
 	}
 	modelName := r.URL.Query().Get("model")
 	if strings.TrimSpace(modelName) == "" {
-		modelName = "Agnes-Video-V2.0"
+		Fail(w, "必须指定模型")
+		return
 	}
 	channel, _, err := selectAIRequestChannel(user, modelName, r.Header.Get("X-Model-Channel-ID"), r.Header.Get(userModelChannelHeader))
 	if err != nil {

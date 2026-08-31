@@ -23,7 +23,7 @@ import { deleteStoredImages, resolveImageUrl, uploadImage } from "@/services/ima
 import { deleteVideoGenerationLogs, fetchVideoGenerationLogs, saveVideoGenerationLogs } from "@/services/api/generation-logs";
 import { createVideoGenerationTask, deleteVideoGenerationTask, listVideoGenerationTasks, pollVideoGenerationTaskStatus, VIDEO_POLL_INTERVAL_MS, VideoRequestError, type VideoResponse } from "@/services/api/video";
 import { useAssetStore } from "@/stores/use-asset-store";
-import { channelProtocolForConfig, normalizeLocalChannels, useConfigStore, useEffectiveConfig, type AiConfig, type VideoElementItem, type VideoElementReference } from "@/stores/use-config-store";
+import { channelProtocolForConfig, useConfigStore, useEffectiveConfig, type AiConfig, type VideoElementItem, type VideoElementReference } from "@/stores/use-config-store";
 import { useThemeStore } from "@/stores/use-theme-store";
 import { useUserStore } from "@/stores/use-user-store";
 import type { ReferenceImage } from "@/types/image";
@@ -160,7 +160,7 @@ export default function VideoPage() {
     const referenceImageLimit = klingOmni === "text-to-video" ? 0 : klingOmni === "image-to-video" ? 2 : klingOmni === "transformation" ? 4 : isKlingWorkbench && klingOmni !== "reference-to-video" ? 2 : SEEDANCE_REFERENCE_LIMITS.images;
     const videoReferenceLimit = klingAcceptsVideoReferences ? 1 : SEEDANCE_REFERENCE_LIMITS.videos;
     const pendingLogCount = logs.filter((log) => log.status === "生成中" && log.task && !log.video).length;
-    const usesBackendVideoTasks = (value: AiConfig) => value.channelMode === "remote" || (value.channelMode === "local" && Boolean(token));
+    const usesBackendVideoTasks = (value: AiConfig) => value.channelMode === "remote";
 
     const restorePendingLogResults = (sourceLogs: GenerationLog[]) => {
         const pendingLogs = sourceLogs.filter((log) => log.status === "生成中" && log.task && !log.video);
@@ -175,7 +175,7 @@ export default function VideoPage() {
             if (pollingLogIdsRef.current.has(log.id)) return;
             const resumeConfig = buildResumeVideoConfig(effectiveConfigRef.current, log);
             const taskId = videoLogTaskId(log);
-            if (!taskId || !isAiConfigReady(resumeConfig, log.model)) return;
+            if (!taskId || !isAiConfigReady(resumeConfig, log.model, "video")) return;
             if (isLocalClientVideoLog(log) && !usesBackendVideoTasks(resumeConfig)) return;
             void pollPendingLogOnce(log, resumeConfig);
         });
@@ -580,7 +580,7 @@ export default function VideoPage() {
             message.error("请输入视频提示词");
             return null;
         }
-        if (!isAiConfigReady(configValue, modelValue)) {
+        if (!isAiConfigReady(configValue, modelValue, "video")) {
             message.warning("请先完成配置");
             openConfigDialog(true);
             return null;
@@ -2797,9 +2797,7 @@ function videoTaskChannelId(task?: VideoResponse | null) {
 }
 
 function resolveVideoChannelId(config: AiConfig, model: string, ...preferredIds: Array<string | undefined>) {
-    const channels = config.channelMode === "remote"
-        ? config.publicChannels.map((channel) => ({ id: channel.id || "", models: channel.models || [] }))
-        : normalizeLocalChannels(config).map((channel) => ({ id: channel.id, models: channel.models }));
+    const channels = config.publicChannels.map((channel) => ({ id: channel.id || "", models: channel.models || [] }));
     for (const id of preferredIds) {
         const channelId = (id || "").trim();
         if (channelId && channels.some((channel) => channel.id === channelId && channel.models.includes(model))) return channelId;
@@ -2844,7 +2842,7 @@ function isKIEKlingModelConfig(config: AiConfig, model: string, key: string) {
 
 function videoChannelProtocol(config: AiConfig, model: string) {
     const channelId = resolveVideoChannelId(config, model, config.videoChannelId, config.activeChannelId);
-    const channels = config.channelMode === "remote" ? config.publicChannels : normalizeLocalChannels(config);
+    const channels = config.publicChannels;
     const channel = channels.find((item) => (item.id || "") === channelId && (item.models || []).includes(model)) || channels.find((item) => (item.models || []).includes(model)) || channels.find((item) => (item.id || "") === channelId);
     return channel?.protocol || "openai";
 }

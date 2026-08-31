@@ -6,7 +6,7 @@ import { isKIESeedreamLayerDecompositionModel } from "@/lib/kie-models";
 import { isMimoChannel, mimoModels } from "@/lib/mimo-tts";
 import { dataUrlToGeminiInlineData, geminiActionUrl, geminiDirectHeaders, geminiErrorMessage, isGeminiConfig, normalizeGeminiBaseUrl } from "@/lib/gemini";
 import { imageToDataUrl, resolveImageUrl } from "@/services/image-storage";
-import { buildApiUrl, channelIdForActiveModel, channelProtocolForConfig, directAIProviderForConfig, localChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
+import { buildApiUrl, channelIdForActiveModel, channelProtocolForConfig, directAIProviderForConfig, publicChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
 import { useUserStore } from "@/stores/use-user-store";
 import type { ReferenceImage } from "@/types/image";
 import { nanoid } from "nanoid";
@@ -528,14 +528,13 @@ function withPromptGuard(config: AiConfig, prompt: string) {
     return config.codexCli ? `${PROMPT_REWRITE_GUARD_PREFIX}\n${prompt}` : prompt;
 }
 
-function usesAccountProxy(config: AiConfig) {
-    const token = useUserStore.getState().token;
-    return config.channelMode === "remote" || (config.channelMode === "local" && Boolean(token));
+function usesAccountProxy(_config: AiConfig) {
+    return true;
 }
 
 export function aiApiUrl(config: AiConfig, path: string) {
     if (usesAccountProxy(config)) return `/api/v1${path}`;
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     return buildApiUrl(channel?.baseUrl || config.baseUrl, path);
 }
 
@@ -545,23 +544,16 @@ export function aiHeaders(config: AiConfig, contentType?: string) {
     if (config.channelMode === "remote") {
         return {
             Authorization: `Bearer ${token}`,
-            ...(channelIdForActiveModel(config) ? { "X-Model-Channel-ID": channelIdForActiveModel(config) } : {}),
             ...(contentType ? { "Content-Type": contentType } : {}),
         };
     }
     if (token) {
-        const userChannelId = channelIdForActiveModel(config);
         return {
             Authorization: `Bearer ${token}`,
-            ...(userChannelId ? { "X-User-Model-Channel-ID": userChannelId } : {}),
             ...(contentType ? { "Content-Type": contentType } : {}),
         };
     }
-    if (isGeminiConfig(config)) return geminiDirectHeaders(config);
-    return {
-        Authorization: `Bearer ${localChannelForActiveModel(config)?.apiKey || config.apiKey}`,
-        ...(contentType ? { "Content-Type": contentType } : {}),
-    };
+    throw new Error("请先登录后再使用 AI 服务");
 }
 
 export function refreshRemoteUser(config: AiConfig) {
@@ -572,7 +564,7 @@ async function writeLocalAICallLog(config: AiConfig, endpoint: string, startedAt
     if (config.channelMode !== "local" || usesAccountProxy(config)) return;
     const token = useUserStore.getState().token;
     if (!token) return;
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     await fetch("/api/v1/ai-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -1229,7 +1221,7 @@ export async function requestImageQuestion(config: AiConfig, messages: ChatCompl
 
 export async function fetchImageModels(config: AiConfig) {
     if (config.channelMode === "remote") return config.models;
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     if (channel?.protocol === "gemini") return fetchGeminiModels(channel.baseUrl, channel.apiKey);
     if (isMiniMaxChannel(channel)) return [...miniMaxModels];
     if (isMimoChannel(channel || { baseUrl: config.baseUrl })) return [...mimoModels];
@@ -1252,7 +1244,7 @@ export async function fetchImageModels(config: AiConfig) {
 async function requestGeminiImageSingle(config: AiConfig, prompt: string, references: ReferenceImage[], params: ImageRequestParams): Promise<GeneratedImage[]> {
     const body = await createGeminiImageBody(config, prompt, references, params);
     const proxy = usesAccountProxy(config);
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     const nativeBody = proxy ? body : withoutModel(body);
     return requestAndParseImages(
         config,
@@ -1332,7 +1324,7 @@ function parseGeminiImages(payload: Record<string, unknown>) {
 async function requestGeminiText(config: AiConfig, messages: ChatCompletionMessage[], onDelta: (text: string) => void) {
     const body = await createGeminiTextBody(config, withSystemMessage(config, messages));
     const proxy = usesAccountProxy(config);
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     const response = await fetch(proxy ? "/api/v1/chat/completions" : geminiActionUrl(channel?.baseUrl || config.baseUrl, config.model, "streamGenerateContent"), {
         method: "POST",
         headers: proxy ? aiHeaders(config, "application/json") : geminiDirectHeaders(config),

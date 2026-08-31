@@ -5,7 +5,7 @@ import { Cpu } from "lucide-react";
 
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { filterModelsByCapability, normalizeLocalChannels, type AiConfig, type ModelCapability } from "@/stores/use-config-store";
+import { filterModelsByCapability, type AiConfig, type ModelCapability } from "@/stores/use-config-store";
 
 type ModelPickerProps = {
     config: AiConfig;
@@ -23,14 +23,11 @@ export function ModelPicker({ config, value, channelId, capability, onChange, cl
     const pickerId = useId();
     const [open, setOpen] = useState(false);
     const channelOptions = useMemo(() => {
-        const channels =
-            config.channelMode === "remote"
-                ? config.publicChannels.map((channel) => ({ id: channel.id, protocol: channel.protocol, name: channel.name || "云端渠道", baseUrl: channel.baseUrl, models: channel.models }))
-                : normalizeLocalChannels(config).map((channel) => ({ id: channel.id, protocol: channel.protocol, name: channel.name || "本地渠道", baseUrl: channel.baseUrl, models: channel.models }));
+        const channels = config.publicChannels.map((channel) => ({ id: channel.id, protocol: channel.protocol, name: channel.name || "云端渠道", baseUrl: channel.baseUrl, models: channel.models }));
         const models = channels.flatMap((channel) => (channel.models ?? []).map((model) => ({ key: `${channel.id}::${model}`, channelId: channel.id, channelName: channel.name, protocol: channel.protocol, model })));
-        if (config.channelMode === "remote" && !models.length) {
+        if (config.channelMode === "remote") {
             const remoteModels = capability === "image" ? config.imageModels : capability === "video" ? config.videoModels : capability === "audio" ? config.audioModels : capability === "text" ? config.textModels : config.models;
-            return remoteModels.map((model) => ({ key: model, channelId: "", channelName: "NewAPI", protocol: "openai" as const, model }));
+            if (remoteModels.length) return remoteModels.map((model) => ({ key: model, channelId: "", channelName: "NewAPI", protocol: "openai" as const, model }));
         }
         if (!capability) return models;
         return models.filter((item) => filterModelsByCapability([item.model], capability, item.protocol || "").length > 0);
@@ -60,7 +57,7 @@ export function ModelPicker({ config, value, channelId, capability, onChange, cl
             open={open}
             value={current ? currentValue : ""}
             onOpenChange={(nextOpen) => {
-                if (nextOpen && !options.length && config.channelMode === "local") {
+                if (nextOpen && !options.length) {
                     onMissingConfig?.();
                     return;
                 }

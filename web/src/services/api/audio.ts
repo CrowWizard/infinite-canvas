@@ -7,7 +7,7 @@ import { isMimoPresetTtsModel, isMimoTtsModel, isMimoVoiceCloneModel, isMimoVoic
 import { geminiActionUrl, geminiDirectHeaders, geminiErrorMessage, isGeminiConfig, isGeminiTtsModel } from "@/lib/gemini";
 import { geminiPcmBase64ToWav, normalizeGeminiTtsVoice } from "@/lib/gemini-tts";
 import { resolveMediaUrl, uploadMediaFile, type UploadedFile } from "@/services/file-storage";
-import { buildApiUrl, channelIdForActiveModel, localChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
+import { buildApiUrl, channelIdForActiveModel, publicChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
 import { useUserStore } from "@/stores/use-user-store";
 import type { ReferenceAudio } from "@/types/media";
 
@@ -34,36 +34,21 @@ type MiMoAudioResponse = { choices?: Array<{ message?: { audio?: { data?: string
 type GeminiAudioResponse = { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: string; mimeType?: string } }> } }>; error?: { message?: string }; promptFeedback?: { blockReason?: string } };
 const grokTtsVoiceRequests = new Map<string, Promise<GrokTtsVoice[]>>();
 
-function usesAccountProxy(config: AiConfig) {
-    const token = useUserStore.getState().token;
-    return config.channelMode === "remote" || (config.channelMode === "local" && Boolean(token));
+function usesAccountProxy(_config: AiConfig) {
+    return true;
 }
 
 function aiApiUrl(config: AiConfig, path: string) {
     if (usesAccountProxy(config)) return `/api/v1${path}`;
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     return buildApiUrl(channel?.baseUrl || config.baseUrl, path);
 }
 
 function aiHeaders(config: AiConfig) {
     const token = useUserStore.getState().token;
-    if (config.channelMode === "remote") {
-        return {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            ...(channelIdForActiveModel(config) ? { "X-Model-Channel-ID": channelIdForActiveModel(config) } : {}),
-            "Content-Type": "application/json",
-        };
-    }
-    if (token) {
-        return {
-            Authorization: `Bearer ${token}`,
-            ...(channelIdForActiveModel(config) ? { "X-User-Model-Channel-ID": channelIdForActiveModel(config) } : {}),
-            "Content-Type": "application/json",
-        };
-    }
-    if (isGeminiConfig(config)) return geminiDirectHeaders(config);
+    if (!token) throw new Error("请先登录后再使用 AI 服务");
     return {
-        Authorization: `Bearer ${localChannelForActiveModel(config)?.apiKey || config.apiKey}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
     };
 }
@@ -94,7 +79,7 @@ export async function requestAudioGeneration(config: AiConfig, prompt: string, r
             if (referenceAudio) throw new Error("Gemini TTS 不支持参考音频");
             const nativeBody = buildGeminiTtsRequest(config, prompt);
             const body = usesAccountProxy(config) ? { model, ...nativeBody } : nativeBody;
-            const channel = localChannelForActiveModel(config);
+            const channel = publicChannelForActiveModel(config);
             const response = await axios.post<GeminiAudioResponse>(
                 usesAccountProxy(config) ? "/api/v1/audio/speech" : geminiActionUrl(channel?.baseUrl || config.baseUrl, model, "generateContent"),
                 body,
@@ -322,17 +307,9 @@ function decodeMiMoAudio(payload: MiMoAudioResponse, format: string) {
     return new Blob([bytes], { type: audioMimeType(format) });
 }
 
-function assertAudioConfig(config: AiConfig, model: string) {
+function assertAudioConfig(_config: AiConfig, model: string) {
     if (!model) throw new Error("请先配置音频模型");
-    if (config.channelMode !== "local") return;
-    if (!isMimoTtsModel(model) && !isGeminiConfig(config, model)) {
-        if (!config.baseUrl.trim()) throw new Error("请先配置 Base URL");
-        if (!config.apiKey.trim()) throw new Error("请先配置 API Key");
-        return;
-    }
-    const channel = localChannelForActiveModel(config);
-    if (!(channel?.baseUrl || config.baseUrl).trim()) throw new Error("请先配置 Base URL");
-    if (!(channel?.apiKey || config.apiKey).trim()) throw new Error("请先配置 API Key");
+    if (!useUserStore.getState().token) throw new Error("请先登录后再使用 AI 服务");
 }
 
 async function assertAudioBlob(blob: Blob) {

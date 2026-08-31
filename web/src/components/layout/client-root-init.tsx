@@ -49,6 +49,7 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
                 updateConfig("imageModels", imageModels);
                 updateConfig("videoModels", videoModels);
                 updateConfig("audioModels", audioModels);
+                syncSelectedModels({ textModels, imageModels, videoModels, audioModels });
             })
             .catch(() => {});
     }, [channelMode, token, updateConfig, user?.id]);
@@ -63,6 +64,20 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
                     Object.entries(payload.modelConfig)
                         .filter(([key]) => !["baseUrl", "apiKey", "models", "imageModels", "videoModels", "textModels", "audioModels", "localChannels", "publicChannels"].includes(key))
                         .forEach(([key, value]) => updateConfig(key as keyof AiConfig, value as never));
+                    const modelConfig = payload.modelConfig as Partial<AiConfig>;
+                    const modelLists = {
+                        models: Array.isArray(modelConfig.models) ? modelConfig.models : undefined,
+                        imageModels: Array.isArray(modelConfig.imageModels) ? modelConfig.imageModels : undefined,
+                        videoModels: Array.isArray(modelConfig.videoModels) ? modelConfig.videoModels : undefined,
+                        textModels: Array.isArray(modelConfig.textModels) ? modelConfig.textModels : undefined,
+                        audioModels: Array.isArray(modelConfig.audioModels) ? modelConfig.audioModels : undefined,
+                    };
+                    Object.entries(modelLists).forEach(([key, value]) => {
+                        if (value) updateConfig(key as keyof AiConfig, value as never);
+                    });
+                    syncSelectedModels(modelLists);
+                } else {
+                    syncSelectedModels();
                 }
                 updateConfig("syncStorageConfig", syncS3);
                 updateConfig("syncWebDAVStorageConfig", syncWebDAV);
@@ -87,9 +102,8 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (handledConfigParams.current) return;
         const searchParams = new URLSearchParams(window.location.search);
-        const baseUrl = searchParams.get("baseUrl") || searchParams.get("baseurl");
-        const apiKey = searchParams.get("apiKey") || searchParams.get("apikey");
-        if (!baseUrl && !apiKey) return;
+        const hasLocalChannelParams = Boolean(searchParams.get("baseUrl") || searchParams.get("baseurl") || searchParams.get("apiKey") || searchParams.get("apikey"));
+        if (!hasLocalChannelParams) return;
         if (!publicSettings) return;
         handledConfigParams.current = true;
         searchParams.delete("baseUrl");
@@ -97,16 +111,28 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
         searchParams.delete("apiKey");
         searchParams.delete("apikey");
         window.history.replaceState(null, "", `${window.location.pathname}${searchParams.size ? `?${searchParams}` : ""}${window.location.hash}`);
-        if (!publicSettings.modelChannel.allowCustomChannel) {
-            openConfigDialog(false);
-            message.error("后台未允许用户自定义渠道，请联系管理员进行配置");
-            return;
-        }
-        updateConfig("channelMode", "local");
-        if (baseUrl) updateConfig("baseUrl", baseUrl);
-        if (apiKey) updateConfig("apiKey", apiKey);
         openConfigDialog(false);
+        message.info("当前仅支持使用云端渠道，URL 中的本地渠道参数已忽略");
     }, [message, openConfigDialog, publicSettings, updateConfig]);
 
     return <>{children}</>;
+
+    function syncSelectedModels(next?: Partial<Record<"textModels" | "imageModels" | "videoModels" | "audioModels", string[]>>) {
+        const config = useConfigStore.getState().config;
+        const models = {
+            textModels: next?.textModels || config.textModels,
+            imageModels: next?.imageModels || config.imageModels,
+            videoModels: next?.videoModels || config.videoModels,
+            audioModels: next?.audioModels || config.audioModels,
+        };
+        const selections: Array<[keyof AiConfig, string, string[]]> = [
+            ["textModel", config.textModel, models.textModels],
+            ["imageModel", config.imageModel, models.imageModels],
+            ["videoModel", config.videoModel, models.videoModels],
+            ["audioModel", config.audioModel, models.audioModels],
+        ];
+        selections.forEach(([key, current, available]) => {
+            if (available.length && !available.includes(current)) updateConfig(key, available[0] as never);
+        });
+    }
 }

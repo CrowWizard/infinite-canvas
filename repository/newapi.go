@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -99,12 +100,15 @@ func ListUserAIModels(userID string, role model.UserRole, modelType string) ([]m
 		query = query.Where("ai_models.model_type = ?", modelType)
 	}
 	if role != model.UserRoleAdmin {
+		query = query.Select("ai_models.*, user_ai_models.new_api_token_id")
 		var permissionCount int64
 		if err := db.Model(&model.UserAIModel{}).Where("user_id = ?", userID).Count(&permissionCount).Error; err != nil {
 			return nil, err
 		}
 		if permissionCount > 0 {
 			query = query.Joins("JOIN user_ai_models ON user_ai_models.ai_model_id = ai_models.id").Where("user_ai_models.user_id = ? AND user_ai_models.is_enabled = ?", userID, true)
+		} else {
+			query = query.Joins("LEFT JOIN user_ai_models ON user_ai_models.ai_model_id = ai_models.id AND user_ai_models.user_id = ?", userID)
 		}
 	}
 	var models []model.AIModel
@@ -126,6 +130,85 @@ func ListUserNewAPITokens(userID string) ([]model.PublicNewAPIToken, error) {
 	return tokens, err
 }
 
+// GetUserNewAPIToken returns an enabled token that explicitly supports modelID.
+// Tokens are ordered by NewAPI default status and then creation time.
+func ListUserNewAPITokenMetadata(userID string) ([]model.PublicNewAPIToken, error) {
+	db, err := DB()
+	if err != nil {
+		return nil, err
+	}
+	var tokens []model.UserNewAPIToken
+	if err := db.Where("user_id = ?", userID).Order("is_default DESC, created_at DESC").Find(&tokens).Error; err != nil {
+		return nil, err
+	}
+	result := make([]model.PublicNewAPIToken, 0, len(tokens))
+	for _, token := range tokens {
+		result = append(result, model.PublicNewAPIToken{TokenID: token.NewAPITokenID, Name: token.Name, Enabled: token.IsEnabled, IsDefault: token.IsDefault, ExpiredAt: token.ExpiredAt, LastSyncedAt: token.LastSyncedAt})
+	}
+	return result, nil
+}
+
+func GetUserNewAPITokenByID(userID, tokenID string) (model.UserNewAPIToken, bool, error) {
+	db, err := DB()
+	if err != nil {
+		return model.UserNewAPIToken{}, false, err
+	}
+	var token model.UserNewAPIToken
+	err = db.Where("user_id = ? AND new_api_token_id = ? AND is_enabled = ?", userID, tokenID, true).First(&token).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.UserNewAPIToken{}, false, nil
+	}
+	return token, err == nil, err
+}
+
+func SaveUserAIModelToken(userID, aiModelID, tokenID string) error {
+	db, err := DB()
+	if err != nil {
+		return err
+	}
+	return db.Model(&model.UserAIModel{}).
+		Where("user_id = ? AND ai_model_id = ?", userID, aiModelID).
+		Updates(map[string]any{"new_api_token_id": tokenID, "updated_at": time.Now().UTC().Format(time.RFC3339Nano)}).Error
+}
+
+func GetUserAIModelTokenID(userID, modelID string) (string, bool, error) {
+	db, err := DB()
+	if err != nil {
+		return "", false, err
+	}
+	var binding model.UserAIModel
+	err = db.Where("user_id = ? AND ai_model_id = ? AND is_enabled = ?", userID, modelID, true).First(&binding).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return "", false, nil
+	}
+	return binding.NewAPITokenID, err == nil, err
+}
+
+// GetUserNewAPIToken returns an enabled token that explicitly supports modelID.
+func GetUserNewAPIToken(userID, modelID string) (model.UserNewAPIToken, bool, error) {
+	db, err := DB()
+	if err != nil {
+		return model.UserNewAPIToken{}, false, err
+	}
+	var tokens []model.UserNewAPIToken
+	if err := db.Where("user_id = ? AND is_enabled = ?", userID, true).
+		Order("is_default DESC, created_at DESC").Find(&tokens).Error; err != nil {
+		return model.UserNewAPIToken{}, false, err
+	}
+	for _, token := range tokens {
+		var models []string
+		if err := json.Unmarshal(token.ModelList, &models); err != nil {
+			return model.UserNewAPIToken{}, false, err
+		}
+		for _, available := range models {
+			if available == modelID {
+				return token, true, nil
+			}
+		}
+	}
+	return model.UserNewAPIToken{}, false, nil
+}
+
 func ListAIModels() ([]model.AIModel, error) {
 	db, err := DB()
 	if err != nil {
@@ -134,6 +217,19 @@ func ListAIModels() ([]model.AIModel, error) {
 	var models []model.AIModel
 	err = db.Order("sort_order ASC, model_id ASC").Find(&models).Error
 	return models, err
+}
+
+func GetAIModelByModelID(modelID string) (model.AIModel, bool, error) {
+	db, err := DB()
+	if err != nil {
+		return model.AIModel{}, false, err
+	}
+	var aiModel model.AIModel
+	err = db.Where("model_id = ?", modelID).First(&aiModel).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.AIModel{}, false, nil
+	}
+	return aiModel, err == nil, err
 }
 
 func GetAIModel(id string) (model.AIModel, bool, error) {

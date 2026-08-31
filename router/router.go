@@ -104,6 +104,8 @@ func New() *gin.Engine {
 		handler.DeleteDirectFileRecord(c.Writer, c.Request, c.Param("id"))
 	})
 	v1.GET("/user-config", gin.WrapF(handler.UserConfig))
+	v1.GET("/user-config/newapi-tokens", gin.WrapF(handler.UserNewAPITokens))
+	v1.POST("/user-config/model-token", gin.WrapF(handler.BindUserAIModelToken))
 	v1.POST("/user-config/model", gin.WrapF(handler.SaveUserModelConfig))
 	v1.POST("/user-config/storage", gin.WrapF(handler.SaveUserStorageProvider))
 	v1.GET("/canvas/projects", gin.WrapF(handler.UserCanvasProjects))

@@ -16,7 +16,7 @@ import { createCanvasImageTask, requestEdit, requestGeneration, requestImageQues
 import { saveImageGenerationLogs } from "@/services/api/generation-logs";
 import { deleteUserWorkflow, draftUserWorkflow, fetchUserConfig, fetchUserWorkflows, saveUserWorkflow, type CreativeWorkflowRecord } from "@/services/api/user-config";
 import { deleteStoredImages, imageToDataUrl, uploadImage } from "@/services/image-storage";
-import { channelProtocolForConfig, defaultConfig, localChannelForActiveModel, normalizeLocalChannels, useConfigStore, useEffectiveConfig, type AiConfig } from "@/stores/use-config-store";
+import { channelProtocolForConfig, defaultConfig, useConfigStore, useEffectiveConfig, type AiConfig } from "@/stores/use-config-store";
 import { useThemeStore } from "@/stores/use-theme-store";
 import { useUserStore } from "@/stores/use-user-store";
 import type { ReferenceImage } from "@/types/image";
@@ -547,7 +547,7 @@ export function CreativeWorkflowWorkspace({
                 openConfigDialog(true);
                 return;
             }
-            const localChannel = effectiveConfig.channelMode === "local" ? localChannelForActiveModel(textConfig) : null;
+            const localChannel = null;
             const referenceDataUrls = await Promise.all(agentReferences.map((image) => imageToDataUrl(image)));
             const result = await draftUserWorkflow<Partial<CreativeWorkflow>>(token, {
                 prompt: text,
@@ -716,7 +716,7 @@ export function CreativeWorkflowWorkspace({
             ...value,
         ]);
         message.success(seriesTitle ? `${seriesTitle} 已开始生成` : "工作流任务已开始");
-        if (runConfig.channelMode === "remote" || (runConfig.channelMode === "local" && token)) {
+        if (runConfig.channelMode === "remote") {
             return createWorkflowImageTasks({ taskId, workflow, prompt: promptSnapshot, inputSnapshot, references: referencesSnapshot, runConfig, taskConfig, model, count, startedAt, seriesDraftId, seriesTitle, seriesIndex });
         }
         return executeWorkflowTask({ taskId, workflow, prompt: promptSnapshot, inputSnapshot, references: referencesSnapshot, runConfig, taskConfig, model, count, startedAt, performanceStartedAt, seriesDraftId, seriesTitle, seriesIndex });
@@ -1806,10 +1806,6 @@ function createWorkflowSeriesConfig(config: AiConfig): WorkflowSeriesConfig {
 
 function describeModelSelection(config: AiConfig, modelName: string, channelId: string) {
     const selectedModel = modelName || "未选择模型";
-    if (config.channelMode === "local") {
-        const channel = localChannelForActiveModel({ ...config, model: selectedModel, activeChannelId: channelId });
-        return { channelName: channel?.name || "本地直连", modelName: selectedModel };
-    }
     const channel =
         config.publicChannels.find((item) => item.id === channelId && item.models?.includes(selectedModel)) ||
         config.publicChannels.find((item) => item.models?.includes(selectedModel)) ||
@@ -2008,9 +2004,7 @@ function resolveWorkflowRuntime(workflow: CreativeWorkflow, baseConfig: AiConfig
 }
 
 function resolveWorkflowImageChannelId(config: AiConfig, model: string, ...preferredIds: Array<string | undefined>) {
-    const channels = config.channelMode === "remote"
-        ? config.publicChannels.map((channel) => ({ id: channel.id || "", models: channel.models || [] }))
-        : normalizeLocalChannels(config).map((channel) => ({ id: channel.id, models: channel.models }));
+    const channels = config.publicChannels.map((channel) => ({ id: channel.id || "", models: channel.models || [] }));
     for (const id of preferredIds) {
         const channelId = (id || "").trim();
         if (channelId && channels.some((channel) => channel.id === channelId && channel.models.includes(model))) return channelId;

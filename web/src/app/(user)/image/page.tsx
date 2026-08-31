@@ -41,7 +41,7 @@ import {
     type WorkflowExternalTaskStart,
     type WorkflowExternalTaskSuccess,
 } from "@/components/workflows/creative-workflow-workspace";
-import { normalizeLocalChannels, useConfigStore, useEffectiveConfig, type AiConfig } from "@/stores/use-config-store";
+import { useConfigStore, useEffectiveConfig, type AiConfig } from "@/stores/use-config-store";
 import { useThemeStore } from "@/stores/use-theme-store";
 import { nanoid } from "nanoid";
 import { formatBytes, formatDuration, getDataUrlByteSize, readImageMeta } from "@/lib/image-utils";
@@ -171,7 +171,7 @@ export default function ImagePage() {
     const generationCount = Math.max(1, Math.min(10, Number(config.count) || 1));
     const pendingCount = results.filter((item) => item.status === "pending").length;
     const pendingLogCount = logs.filter((log) => log.status === "生成中" && log.task && !log.images.length).length;
-    const usesBackendImageTasks = (value: AiConfig) => value.channelMode === "remote" || (value.channelMode === "local" && Boolean(token));
+    const usesBackendImageTasks = (value: AiConfig) => value.channelMode === "remote";
     const imageTaskConfig = () => effectiveConfigRef.current;
 
     const restorePendingLogResults = (sourceLogs: GenerationLog[]) => {
@@ -964,7 +964,7 @@ export default function ImagePage() {
         const baseConfig = { ...effectiveConfig, ...configOverride };
         const requestModel = configOverride?.imageModel || configOverride?.model || model;
         const requestChannelId = resolveImageChannelId(baseConfig, requestModel, configOverride?.imageChannelId, configOverride?.activeChannelId, baseConfig.imageChannelId, baseConfig.activeChannelId);
-        if (!isAiConfigReady(baseConfig, requestModel)) {
+        if (!isAiConfigReady(baseConfig, requestModel, "image")) {
             message.warning("请先完成配置");
             openConfigDialog(true);
             return null;
@@ -2728,9 +2728,7 @@ function imageTaskChannelId(task?: CanvasImageTask | null) {
 }
 
 function resolveImageChannelId(config: AiConfig, model: string, ...preferredIds: Array<string | undefined>) {
-    const channels = config.channelMode === "remote"
-        ? config.publicChannels.map((channel) => ({ id: channel.id || "", models: channel.models || [] }))
-        : normalizeLocalChannels(config).map((channel) => ({ id: channel.id, models: channel.models }));
+    const channels = config.publicChannels.map((channel) => ({ id: channel.id || "", models: channel.models || [] }));
     for (const id of preferredIds) {
         const channelId = (id || "").trim();
         if (channelId && channels.some((channel) => channel.id === channelId && channel.models.includes(model))) return channelId;

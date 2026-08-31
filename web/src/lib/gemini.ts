@@ -1,4 +1,4 @@
-import { channelProtocolForConfig, localChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
+import { channelProtocolForConfig, publicChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
 
 export const GEMINI_PROTOCOL = "gemini" as const;
 export const GEMINI_DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com";
@@ -36,7 +36,7 @@ export function geminiOperationUrl(baseUrl: string, operation: string) {
 export function geminiDirectHeaders(config: AiConfig) {
     return {
         "Content-Type": "application/json",
-        "x-goog-api-key": localChannelForActiveModel(config)?.apiKey || config.apiKey,
+        "x-goog-api-key": publicChannelForActiveModel(config)?.apiKey || config.apiKey,
     };
 }
 

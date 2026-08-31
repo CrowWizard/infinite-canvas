@@ -150,7 +150,7 @@ func CurrentUserConfig(ctx context.Context) (UserConfigPayload, error) {
 		return result, nil
 	}
 	if strings.TrimSpace(config.ModelConfig) != "" {
-		result.ModelConfig = json.RawMessage(config.ModelConfig)
+		result.ModelConfig = sanitizeUserModelConfig(json.RawMessage(config.ModelConfig))
 	}
 	if strings.TrimSpace(config.StorageProvider) != "" {
 		providers := readUserStorageProviders(config.StorageProvider)
@@ -176,6 +176,24 @@ func CurrentUserConfig(ctx context.Context) (UserConfigPayload, error) {
 		result.AssetData = json.RawMessage(config.AssetData)
 	}
 	return result, nil
+}
+
+func sanitizeUserModelConfig(raw json.RawMessage) json.RawMessage {
+	var config map[string]any
+	if err := json.Unmarshal(raw, &config); err != nil {
+		return raw
+	}
+	for _, key := range []string{
+		"baseUrl", "apiKey", "localChannels", "publicChannels",
+		"activeChannelId", "imageChannelId", "videoChannelId", "textChannelId", "audioChannelId",
+	} {
+		delete(config, key)
+	}
+	cleaned, err := json.Marshal(config)
+	if err != nil {
+		return raw
+	}
+	return cleaned
 }
 
 func readUserStorageProviders(raw string) UserStorageProviders {

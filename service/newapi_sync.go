@@ -1,7 +1,10 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/tigerowo/infinite-canvas/model"
@@ -61,7 +64,7 @@ func SyncCurrentUserNewAPI(userID string) (NewAPISyncStatus, error) {
 		}
 		session = login.Cookie
 	}
-	if err := storeNewAPITokens(userID, tokens); err != nil {
+	if err := storeNewAPITokens(client, userID, session, user.NewAPIUserID, tokens); err != nil {
 		_ = saveSyncError(credential, err.Error(), false)
 		return NewAPISyncStatus{}, err
 	}
@@ -85,17 +88,29 @@ func SyncCurrentUserNewAPI(userID string) (NewAPISyncStatus, error) {
 	return NewAPISyncStatus{NewAPIUsername: credential.NewAPIUsername, TokenCount: len(tokens), LastSyncAt: credential.LastSyncAt}, nil
 }
 
-func storeNewAPITokens(userID string, tokens []NewAPIToken) error {
+func storeNewAPITokens(client *NewAPIClient, userID, session, newAPIUserID string, tokens []NewAPIToken) error {
 	stored := make([]model.UserNewAPIToken, 0, len(tokens))
 	for _, token := range tokens {
-		ciphertext, nonce, err := encryptCredential(token.Key)
+		key, err := client.TokenKey(session, token.ID, newAPIUserID)
+		if err != nil {
+			return err
+		}
+		models, err := client.Models(key)
+		if err != nil {
+			return err
+		}
+		modelList, err := json.Marshal(models)
+		if err != nil {
+			return err
+		}
+		ciphertext, nonce, err := encryptCredential(key)
 		if err != nil {
 			return err
 		}
 		stored = append(stored, model.UserNewAPIToken{
 			ID: newID("newapi_token"), UserID: userID, NewAPITokenID: token.ID, Name: token.Name,
 			TokenCiphertext: ciphertext, TokenNonce: nonce, IsEnabled: token.Enabled, IsDefault: token.Default,
-			ExpiredAt: token.ExpiredAt, LastSyncedAt: now(), CreatedAt: now(), UpdatedAt: now(),
+			ExpiredAt: token.ExpiredAt, ModelList: modelList, LastSyncedAt: now(), CreatedAt: now(), UpdatedAt: now(),
 		})
 	}
 	return repository.ReplaceUserNewAPITokens(userID, stored)
@@ -106,4 +121,55 @@ func saveSyncError(credential model.UserNewAPICredential, message string, reauth
 	credential.ReauthRequired = reauth
 	_, err := repository.SaveUserNewAPICredential(credential)
 	return err
+}
+
+// ListCurrentUserNewAPITokens returns token metadata without exposing secrets.
+func ListCurrentUserNewAPITokens(ctx context.Context) ([]model.PublicNewAPIToken, error) {
+	user, ok := UserFromContext(ctx)
+	if !ok || user.ID == "" {
+		return nil, errors.New("请先登录")
+	}
+	return repository.ListUserNewAPITokenMetadata(user.ID)
+}
+
+// BindCurrentUserAIModelToken binds one of the user's NewAPI tokens to a model.
+func BindCurrentUserAIModelToken(ctx context.Context, aiModelID, tokenID string) error {
+	user, ok := UserFromContext(ctx)
+	if !ok || user.ID == "" {
+		return errors.New("请先登录")
+	}
+	aiModelID = strings.TrimSpace(aiModelID)
+	tokenID = strings.TrimSpace(tokenID)
+	if aiModelID == "" || tokenID == "" {
+		return errors.New("模型和 Token 不能为空")
+	}
+	aiModel, found, err := repository.GetAIModel(aiModelID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return errors.New("模型不存在")
+	}
+	token, found, err := repository.GetUserNewAPITokenByID(user.ID, tokenID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return errors.New("Token 不属于当前用户或已禁用")
+	}
+	var models []string
+	if err := json.Unmarshal(token.ModelList, &models); err != nil {
+		return errors.New("Token 模型列表无效，请先同步 Token")
+	}
+	matched := false
+	for _, name := range models {
+		if strings.TrimSpace(name) == aiModel.ModelID {
+			matched = true
+			break
+		}
+	}
+	if !matched {
+		return errors.New("该 Token 不支持此模型")
+	}
+	return repository.SaveUserAIModelToken(user.ID, aiModel.ID, token.NewAPITokenID)
 }

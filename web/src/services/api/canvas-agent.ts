@@ -2,7 +2,7 @@ import { mimoTextModels } from "@/lib/mimo-tts";
 import { dataUrlToGeminiInlineData, geminiActionUrl, geminiDirectHeaders, geminiErrorMessage, isGeminiConfig } from "@/lib/gemini";
 import { aiApiUrl, aiHeaders, refreshRemoteUser } from "@/services/api/image";
 import { imageToDataUrl } from "@/services/image-storage";
-import { localChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
+import { publicChannelForActiveModel, type AiConfig } from "@/stores/use-config-store";
 import type { CanvasAgentProtocolMessage, CanvasAgentToolCall } from "@/app/(user)/canvas/types";
 import type { CanvasAgentToolDefinition } from "@/app/(user)/canvas/agent/canvas-agent-tools";
 
@@ -170,7 +170,7 @@ async function requestGeminiCompletion(config: AiConfig, systemPrompt: string, m
         ...(tools.length ? { tools: [{ functionDeclarations: tools.map((tool) => tool.function) }] } : {}),
     };
     const proxy = Boolean(aiApiUrl(config, "/chat/completions").startsWith("/api/"));
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     const { model: _model, stream: _stream, ...nativeBody } = body;
     const response = await fetch(proxy ? aiApiUrl(config, "/chat/completions") : geminiActionUrl(channel?.baseUrl || config.baseUrl, config.model, "generateContent"), {
         method: "POST",

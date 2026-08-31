@@ -44,10 +44,6 @@ func CreateCanvasImageTask(w http.ResponseWriter, r *http.Request) {
 	}
 	channelID = firstNonEmpty(channelID, r.Header.Get("X-Model-Channel-ID"))
 	userChannelID := r.Header.Get(userModelChannelHeader)
-	if strings.TrimSpace(channelID) == "" && strings.TrimSpace(userChannelID) == "" {
-		Fail(w, "缺少模型渠道")
-		return
-	}
 	channel, resolvedUserChannelID, err := selectAIRequestChannel(user, modelName, channelID, userChannelID)
 	if err != nil {
 		log.Printf("canvas image task select channel failed: model=%s err=%v", modelName, err)
@@ -197,10 +193,6 @@ func CreateCanvasAudioTask(w http.ResponseWriter, r *http.Request) {
 	}
 	channelID = firstNonEmpty(channelID, r.Header.Get("X-Model-Channel-ID"))
 	userChannelID := r.Header.Get(userModelChannelHeader)
-	if strings.TrimSpace(channelID) == "" && strings.TrimSpace(userChannelID) == "" {
-		Fail(w, "缺少模型渠道")
-		return
-	}
 	channel, resolvedUserChannelID, err := selectAIRequestChannel(user, modelName, channelID, userChannelID)
 	if err != nil {
 		log.Printf("canvas audio task select channel failed: model=%s err=%v", modelName, err)

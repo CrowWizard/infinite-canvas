@@ -9,7 +9,7 @@ import { isKIEGrokVideoModel, isKIEKlingV3Config, kieKlingOmniVariant } from "@/
 import { isAgnesVideoV25Model, isCogVideoX3Model, modelKey, normalizeCogVideoX3Duration, supportsVideoAudioGeneration } from "@/lib/video-model-capabilities";
 import { resolveMediaUrl, uploadMediaFile } from "@/services/file-storage";
 import { imageToDataUrl, resolveImageUrl } from "@/services/image-storage";
-import { buildApiUrl, channelIdForActiveModel, channelProtocolForConfig, directAIProviderForConfig, localChannelForActiveModel, type AiConfig, type VideoElementReference } from "@/stores/use-config-store";
+import { buildApiUrl, channelIdForActiveModel, channelProtocolForConfig, directAIProviderForConfig, publicChannelForActiveModel, type AiConfig, type VideoElementReference } from "@/stores/use-config-store";
 import { useUserStore } from "@/stores/use-user-store";
 import type { ReferenceImage } from "@/types/image";
 import type { ReferenceAudio, ReferenceVideo } from "@/types/media";
@@ -33,20 +33,19 @@ export class VideoRequestError extends Error {
     }
 }
 
-function usesAccountProxy(config: AiConfig) {
-    const token = useUserStore.getState().token;
-    return config.channelMode === "remote" || (config.channelMode === "local" && Boolean(token));
+function usesAccountProxy(_config: AiConfig) {
+    return true;
 }
 
 function aiApiUrl(config: AiConfig, path: string) {
     if (usesAccountProxy(config)) return `/api/v1${path}`;
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     return buildApiUrl(channel?.baseUrl || config.baseUrl, path);
 }
 
 function aiVideoPollUrl(config: AiConfig, model: string, id: string) {
     if (!usesAccountProxy(config) && isGeminiConfig(config, model)) {
-        const channel = localChannelForActiveModel(config);
+        const channel = publicChannelForActiveModel(config);
         return geminiOperationUrl(channel?.baseUrl || config.baseUrl, id);
     }
     if (!usesAccountProxy(config) && isMiniMaxH3Config(config, model)) {
@@ -61,13 +60,13 @@ function aiVideoPollUrl(config: AiConfig, model: string, id: string) {
     if (usesAccountProxy(config)) {
         return `/api/v1/videos/${encodeURIComponent(id)}`;
     }
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     const baseUrl = agnesBaseUrl(channel?.baseUrl || config.baseUrl);
     return `${baseUrl}/agnesapi?video_id=${encodeURIComponent(id)}&model_name=${encodeURIComponent(model)}`;
 }
 
 function miniMaxApiUrl(config: AiConfig, path: string) {
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     return `${(channel?.baseUrl || config.baseUrl).trim().replace(/\/+$/, "")}${path}`;
 }
 
@@ -76,13 +75,10 @@ function agnesBaseUrl(baseUrl: string) {
     return normalized.toLowerCase().endsWith("/v1") ? normalized.slice(0, -3).replace(/\/+$/, "") : normalized;
 }
 
-function aiHeaders(config: AiConfig) {
+function aiHeaders(_config: AiConfig) {
     const token = useUserStore.getState().token;
-    if (config.channelMode === "remote" && !token) throw new Error("请先登录后再使用云端渠道");
-    if (config.channelMode === "remote") return { Authorization: `Bearer ${token}`, ...(channelIdForActiveModel(config) ? { "X-Model-Channel-ID": channelIdForActiveModel(config) } : {}) };
-    if (token) return { Authorization: `Bearer ${token}`, ...(channelIdForActiveModel(config) ? { "X-User-Model-Channel-ID": channelIdForActiveModel(config) } : {}) };
-    if (isGeminiConfig(config)) return geminiDirectHeaders(config);
-    return { Authorization: `Bearer ${localChannelForActiveModel(config)?.apiKey || config.apiKey}` };
+    if (!token) throw new Error("请先登录后再使用 AI 服务");
+    return { Authorization: `Bearer ${token}` };
 }
 
 function refreshRemoteUser(config: AiConfig) {
@@ -106,7 +102,7 @@ export async function requestVideoGeneration(config: AiConfig, prompt: string, r
 }
 
 export async function createVideoGenerationTask(config: AiConfig, prompt: string, references: ReferenceImage[] | VideoReferenceInput = [], onProgress?: VideoProgressHandler, options?: string | VideoTaskCreateOptions): Promise<CreatedVideoGenerationTask> {
-    const model = config.model || config.videoModel;
+    const model = config.videoModel || config.model;
     const systemPrompt = (config.systemPrompts.video || config.systemPrompt).trim();
     const body = await createVideoRequestBody(config, model, systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt, normalizeVideoReferenceInput(references));
     const startedAt = Date.now();
@@ -115,7 +111,7 @@ export async function createVideoGenerationTask(config: AiConfig, prompt: string
         const accountProxy = usesAccountProxy(config);
         const headers = { ...aiHeaders(config), ...(accountProxy && createOptions.clientTaskId ? { "X-Client-Video-Task-ID": createOptions.clientTaskId } : {}), ...(accountProxy && createOptions.source ? { "X-Video-Task-Source": createOptions.source } : {}), ...(accountProxy && createOptions.sourceId ? { "X-Video-Task-Source-ID": createOptions.sourceId } : {}) };
         const directProvider = !accountProxy ? directAIProviderForConfig(config) : null;
-        const channel = localChannelForActiveModel(config);
+        const channel = publicChannelForActiveModel(config);
         const createUrl = !accountProxy && isGeminiConfig(config, model)
             ? geminiActionUrl(channel?.baseUrl || config.baseUrl, model, "predictLongRunning")
             : !accountProxy && isMiniMaxH3Config(config, model)
@@ -140,7 +136,7 @@ function normalizeVideoTaskCreateOptions(options?: string | VideoTaskCreateOptio
 }
 
 export async function pollCreatedVideoGenerationTask(config: AiConfig, task: VideoResponse, { startedAt = Date.now(), requestBody, initialDelayMs = 0, onProgress, onPoll }: { startedAt?: number; requestBody?: unknown; initialDelayMs?: number; onProgress?: VideoProgressHandler; onPoll?: (task: VideoResponse) => void } = {}) {
-    const model = config.model || config.videoModel;
+    const model = config.videoModel || config.model;
     const pollId = videoPollId(model, task);
     if (!pollId) throw new VideoRequestError("视频接口没有返回任务 ID", task);
     const directProvider = !usesAccountProxy(config) ? directAIProviderForConfig(config) : null;
@@ -176,7 +172,7 @@ export async function pollCreatedVideoGenerationTask(config: AiConfig, task: Vid
 }
 
 export async function pollVideoGenerationTaskStatus(config: AiConfig, task: VideoResponse) {
-    const model = config.model || config.videoModel;
+    const model = config.videoModel || config.model;
     const pollId = videoPollId(model, task);
     if (!pollId) throw new VideoRequestError("视频接口没有返回任务 ID", task);
     const directProvider = !usesAccountProxy(config) ? directAIProviderForConfig(config) : null;
@@ -201,9 +197,9 @@ export async function deleteVideoGenerationTask(config: AiConfig, task?: VideoRe
     if (payload.code !== 0) throw new VideoRequestError(payload.msg || payload.message || "删除视频任务失败", payload);
 }
 
-function isGrok2APIVideoConfig(config: AiConfig, model: string) {
+function isGrok2APIVideoConfig(_config: AiConfig, model: string) {
     const normalizedModel = model.trim().toLowerCase();
-    return (normalizedModel === "grok-imagine-video" || normalizedModel === "grok-imagine-video-1.5") && videoChannelProtocol(config, model) === "grok2api";
+    return normalizedModel === "grok-imagine-video" || normalizedModel === "grok-imagine-video-1.5";
 }
 
 async function cacheProtectedGrokVideo(config: AiConfig, model: string, task: VideoResponse) {
@@ -220,15 +216,15 @@ async function createGrok2APIVideoRequestBody(config: AiConfig, model: string, p
     const body: Record<string, unknown> = {
         model,
         prompt,
-        duration: Number(normalizeVideoSeconds(config.videoSeconds)),
+        seconds: normalizeVideoSeconds(config.videoSeconds),
         resolution: normalizeVideoResolution(config.vquality),
+        aspect_ratio: normalizeSeedanceRatio(config.size) === "adaptive" ? "16:9" : normalizeSeedanceRatio(config.size),
     };
-    const aspectRatio = normalizeSeedanceRatio(config.size);
-    if (aspectRatio !== "adaptive") body.aspect_ratio = aspectRatio;
 
-    const urls = await Promise.all(input.references.map((reference) => imageToDataUrl(reference)));
-    if (urls.length === 1) body.image = { url: urls[0] };
-    else if (urls.length > 1) body.reference_images = urls.map((url) => ({ url }));
+    if (input.firstFrame && input.references.length) throw new VideoRequestError("Grok 视频的首帧不能和普通参考图同时使用");
+    const urls = await Promise.all(input.references.slice(0, 7).map((reference) => imageToDataUrl(reference)));
+    if (urls.length) body.reference_images = urls;
+    if (input.firstFrame) body.input_reference = await imageToDataUrl(input.firstFrame);
 
     return body;
 }
@@ -792,7 +788,7 @@ async function writeVideoAICallLog(config: AiConfig, model: string, endpoint: st
     if (config.channelMode !== "local" || usesAccountProxy(config)) return;
     const token = useUserStore.getState().token;
     if (!token) return;
-    const channel = localChannelForActiveModel(config);
+    const channel = publicChannelForActiveModel(config);
     await fetch("/api/v1/ai-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

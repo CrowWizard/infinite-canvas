@@ -95,6 +95,7 @@ func proxyAIVideoTaskRequest(w http.ResponseWriter, r *http.Request) {
 		Fail(w, "AI 接口请求失败")
 		return
 	}
+	log.Printf("AI video upstream request: model=%s url=%s content_type=%s body=%s", modelName, request.URL.String(), contentType, summarizeAIRequest(body, contentType))
 	service.SetModelChannelAuthHeader(request, channel)
 	if contentType != "" {
 		request.Header.Set("Content-Type", contentType)
@@ -161,7 +162,7 @@ func proxyAIVideoTaskRequest(w http.ResponseWriter, r *http.Request) {
 		ChannelName:     channel.Name,
 		Source:          readVideoTaskSource(r),
 		SourceID:        readVideoTaskSourceID(r),
-		ClientTaskID:     readClientVideoTaskID(r),
+		ClientTaskID:    readClientVideoTaskID(r),
 		UpstreamTaskID:  parsed.UpstreamTaskID,
 		UpstreamVideoID: parsed.UpstreamVideoID,
 		Status:          parsed.Status,
@@ -231,12 +232,7 @@ func serveGeminiVideoTaskContent(w http.ResponseWriter, r *http.Request, id stri
 	if err != nil || !found {
 		return false
 	}
-	var channel model.ModelChannel
-	if strings.TrimSpace(task.UserChannelID) != "" {
-		channel, err = service.SelectUserLocalModelChannelForModel(task.UserID, task.Model, task.UserChannelID)
-	} else {
-		channel, err = service.SelectModelChannelForModel(task.Model, task.ChannelID)
-	}
+	channel, err := service.NewAPIModelChannelForUserID(task.UserID, task.Model)
 	if err != nil || !service.IsGeminiChannel(channel) {
 		return false
 	}
@@ -269,13 +265,7 @@ func serveGeminiVideoTaskContent(w http.ResponseWriter, r *http.Request, id stri
 }
 
 func pollVideoTaskFromUpstream(task model.VideoTask) (service.VideoTaskPollUpdate, error) {
-	var channel model.ModelChannel
-	var err error
-	if strings.TrimSpace(task.UserChannelID) != "" {
-		channel, err = service.SelectUserLocalModelChannelForModel(task.UserID, task.Model, task.UserChannelID)
-	} else {
-		channel, err = service.SelectModelChannelForModel(task.Model, task.ChannelID)
-	}
+	channel, err := service.NewAPIModelChannelForUserID(task.UserID, task.Model)
 	if err != nil {
 		return service.VideoTaskPollUpdate{}, err
 	}

@@ -100,3 +100,28 @@ func SaveUserAssetData(w http.ResponseWriter, r *http.Request) {
 	}
 	OK(w, json.RawMessage(data))
 }
+
+func UserNewAPITokens(w http.ResponseWriter, r *http.Request) {
+	tokens, err := service.ListCurrentUserNewAPITokens(r.Context())
+	if err != nil {
+		FailError(w, err)
+		return
+	}
+	OK(w, tokens)
+}
+
+func BindUserAIModelToken(w http.ResponseWriter, r *http.Request) {
+	var request struct {
+		AIModelID string `json:"aiModelId"`
+		TokenID   string `json:"newApiTokenId"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		Fail(w, "请求参数无效")
+		return
+	}
+	if err := service.BindCurrentUserAIModelToken(r.Context(), request.AIModelID, request.TokenID); err != nil {
+		FailError(w, err)
+		return
+	}
+	OK(w, true)
+}

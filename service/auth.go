@@ -656,17 +656,5 @@ func syncNewAPITokens(client *NewAPIClient, userID, newAPIUserID, session string
 	if err != nil {
 		return err
 	}
-	stored := make([]model.UserNewAPIToken, 0, len(tokens))
-	for _, token := range tokens {
-		ciphertext, nonce, err := encryptCredential(token.Key)
-		if err != nil {
-			return err
-		}
-		stored = append(stored, model.UserNewAPIToken{
-			ID: newID("newapi_token"), UserID: userID, NewAPITokenID: token.ID, Name: token.Name,
-			TokenCiphertext: ciphertext, TokenNonce: nonce, IsEnabled: token.Enabled, IsDefault: token.Default,
-			ExpiredAt: token.ExpiredAt, LastSyncedAt: now(), CreatedAt: now(), UpdatedAt: now(),
-		})
-	}
-	return repository.ReplaceUserNewAPITokens(userID, stored)
+	return storeNewAPITokens(client, userID, session, newAPIUserID, tokens)
 }

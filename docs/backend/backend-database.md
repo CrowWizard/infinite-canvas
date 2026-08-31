@@ -386,6 +386,8 @@ S3/R2 与 WebDAV 共用的媒体文件索引表，不保存画布、素材列表
 
 ## NewAPI 与模型权限
 
-- `user_new_api_tokens` 保存用户同步的 NewAPI Token 元数据；`token_key` 仅以加密密文保存，管理接口不返回明文。
+- `user_new_api_tokens` 保存用户同步的 NewAPI Token 元数据；Token 仅以加密密文保存，管理接口不返回明文。
+- `user_new_api_tokens.model_list` 为 PostgreSQL `jsonb` 数组，保存该 Token 从 NewAPI `/models` 获取的可用模型 ID。调用时按 `user_id`、启用状态和数组中的精确 `model_id` 匹配，默认 Token 优先。
 - `ai_models` 保存全局模型 ID、显示名称、类型、Provider、启用状态、排序和 Capabilities JSON。
-- `user_ai_models` 保存用户与全局模型的关联及用户启用状态，`user_id` 与 `ai_model_id` 组成唯一约束。
+- `user_ai_models` 保存用户与全局模型的关联及用户启用状态，`user_id` 与 `ai_model_id` 组成唯一约束；不冗余保存模型 ID 字符串。
+- 当前 Token 数量较少，模型列表在 Go 中匹配，暂不增加 `model_list` 的 GIN 索引。若未来改用 PostgreSQL JSONB containment 查询，再评估增加 GIN 索引。`AutoMigrate` 会自动新增该 `jsonb` 字段。
